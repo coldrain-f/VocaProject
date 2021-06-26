@@ -2,7 +2,7 @@
 
 #### 데이터베이스 ERD
 
-![image-20210627000221717](C:\Users\user\AppData\Roaming\Typora\typora-user-images\image-20210627000221717.png)
+![DB_ERD](C:\Users\user\Desktop\(최신)단어 학습 프로젝트\TyporaImages\DB_ERD.png)
 
 
 
