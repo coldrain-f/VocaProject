@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.coldrain.mapper.WordMapper">
+	
+	<resultMap type="edu.coldrain.domain.WordVO" id="wordResultMap">
+		<result property="wordId" column="word_id" />
+		<result property="wordName" column="word_name" />
+		<result property="wordMeaning" column="word_meaning" />
+		<result property="categoryId" column="category_id" />
+	</resultMap>
+	
+	<!-- 특정 카테고리에 단어 추가하기 -->
+	<insert id="insert">
+		INSERT INTO TBL_WORD (WORD_NAME, WORD_MEANING, CATEGORY_ID) 
+		VALUES (#{wordName}, #{wordMeaning}, #{categoryId})
+	</insert>
+	
+	<!-- 특정 단어 조회하기 -->
+	<select id="read" resultMap="wordResultMap">
+		SELECT TBL_WORD.* FROM TBL_WORD
+		WHERE WORD_ID = #{wordId}
+	</select>
+	
+	<!-- 특정 단어 수정하기 -->
+	<update id="update">
+		UPDATE TBL_WORD SET
+		WORD_NAME = #{wordName},
+		WORD_MEANING = #{wordMeaning}
+		WHERE WORD_ID = #{wordId}
+	</update>
+	
+	<!-- 특정 단어 삭제하기 -->
+	<delete id="delete">
+		DELETE FROM TBL_WORD
+		WHERE WORD_ID = #{wordId}
+	</delete>
+	
+	<!-- 모든 단어의 목록 조회하기 -->
+	<select id="readList" resultMap="wordResultMap">
+		<![CDATA[
+			SELECT /*+ INDEX_DESC(TBL_WORD PK_TBL_WORD)*/TBL_WORD.* 
+			FROM TBL_WORD		
+		]]>
+	</select>
+
+	<!-- 특정 카테고리의 모든 단어 목록 조회하기 -->
+	<select id="readListByCategoryId" resultMap="wordResultMap">
+		<![CDATA[
+			SELECT /*+ INDEX_DESC(TBL_WORD PK_TBL_WORD)*/TBL_WORD.* FROM TBL_WORD
+			WHERE CATEGORY_ID = #{categoryId}	
+		]]>
+	</select>
+	
+</mapper>

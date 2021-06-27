@@ -6,7 +6,7 @@ import edu.coldrain.domain.CategoryVO;
 
 public interface CategoryMapper {
 
-	// 카테고리 추가하기
+	// 특정 책에 카테고리 추가하기
 	public int insert(CategoryVO categoryVO);
 	
 	// 특정 카테고리 조회하기

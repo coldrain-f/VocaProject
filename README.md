@@ -1321,3 +1321,259 @@ public class CategoryServiceTests {
 }
 ```
 
+
+
+#### 단어 테이블 영속 계층 구현
+
+`WordVO 클래스`
+
+```java
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+public class WordVO {
+
+	// 단어 아이디 AUTO SEQUENCE
+	private Long wordId;
+	
+	// 단어 이름 UNIQUE
+	private String wordName;
+	  
+	// 단어 뜻 UNIQUE
+	private String wordMeaning;
+	
+	// 카테고리 아이디 UNIQUE
+	private Long categoryId;
+	
+	// 등록일 DEFAULT SYSDATE
+	private Date regdate;
+	
+	// 수정일 DEFAULT SYSDATE
+	private Date updatedate;
+	
+	public WordVO(String wordName, String wordMeaning, Long categoryId) {
+		this.wordName = wordName;
+		this.wordMeaning = wordMeaning;
+		this.categoryId = categoryId;
+	}
+	
+}
+```
+
+`WordMapper 인터페이스`
+
+```java
+public interface WordMapper {
+
+	// 특정 카테고리에 단어 추가하기
+	public int insert(WordVO wordVO);
+	
+	// 특정 단어 조회하기
+	public WordVO read(Long wordId);
+	
+	// 특정 단어 수정하기
+	public int update(WordVO wordVO);
+	
+	// 특정 단어 삭제하기
+	public int delete(Long wordId);
+	
+	// 모든 단어의 목록 조회하기
+	public List<WordVO> readList();
+	
+	// 특정 카테고리의 모든 단어 목록 조회하기
+	public List<WordVO> readListByCategoryId(Long categoryId);
+}
+```
+
+
+
+`WordMapperTests 클래스`
+
+```java
+@Log4j
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("file:src/main/webapp/WEB-INF/spring/root-context.xml")
+public class WordMapperTests {
+
+	@Autowired
+	private WordMapper mapper;
+	
+	@Test
+	public void testExist() {
+		log.info(mapper);
+	}
+	
+	@Test
+	public void testInsert() {
+		WordVO wordVO = new WordVO("INSERT", "삽입하다", 23L);
+		int count = mapper.insert(wordVO);
+		
+		log.info("INSERT COUNT = " + count);
+	}
+	
+	@Test
+	public void testRead() {
+		WordVO wordVO = mapper.read(30L);
+		log.info("WORD_VO = " + wordVO);
+	}
+	
+	@Test
+	public void testUpdate() {
+		WordVO wordVO = mapper.read(30L);
+		wordVO.setWordName("UPDATE");
+		wordVO.setWordMeaning("갱신하다");
+		
+		int count = mapper.update(wordVO);
+		log.info("UPDATE COUNT = " + count);		
+	}
+	
+	@Test
+	public void testDelete() {
+		int count = mapper.delete(30L);
+		log.info("DELETE COUNT = " + count);
+	}
+	
+	@Test
+	public void testReadList() {
+		List<WordVO> list = mapper.readList();
+		list.forEach(word -> log.info(word));
+	}
+	
+	@Test
+	public void testReadListByCategoryId() {
+		List<WordVO> list = mapper.readListByCategoryId(23L);
+		list.forEach(word -> log.info(word));
+	}
+}
+```
+
+#### 단어 테이블 비즈니스 계층 구현
+
+`WordService 인터페이스`
+
+```java
+public interface WordService {
+
+	// 특정 카테고리에 단어 추가하기
+	public boolean register(WordVO wordVO);
+	
+	// 특정 단어 조회하기 
+	public WordVO get(Long wordId);
+	
+	// 특정 단어 수정하기
+	public boolean modify(WordVO wordVO);
+	
+	// 특정 단어 삭제하기
+	public boolean remove(Long wordId);
+	
+	// 모든 단어의 목록 조회하기
+	public List<WordVO> getList();
+	
+	// 특정 카테고리의 모든 단어 목록 조회하기
+	public List<WordVO> getListByCategoryId(Long categoryId);
+}
+```
+
+`WordServiceImpl 클래스`
+
+```java
+@Service
+@RequiredArgsConstructor
+public class WordServiceImpl implements WordService {
+
+	private final WordMapper mapper;
+	
+	@Override
+	public boolean register(WordVO wordVO) {
+		return ( mapper.insert(wordVO) == 1 );
+	}
+
+	@Override
+	public WordVO get(Long wordId) {
+		return mapper.read(wordId);
+	}
+
+	@Override
+	public boolean modify(WordVO wordVO) {
+		return ( mapper.update(wordVO) == 1 );
+	}
+
+	@Override
+	public boolean remove(Long wordId) {
+		return ( mapper.delete(wordId) == 1 );
+	}
+
+	@Override
+	public List<WordVO> getList() {
+		return mapper.readList();
+	}
+
+	@Override
+	public List<WordVO> getListByCategoryId(Long categoryId) {
+		return mapper.readListByCategoryId(categoryId);
+	}
+
+}
+```
+
+`WordServiceTests 클래스`
+
+```java
+@Log4j
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("file:src/main/webapp/WEB-INF/spring/root-context.xml")
+public class WordServiceTests {
+
+	@Autowired
+	private WordService service;
+	
+	@Test
+	public void testExist() {
+		log.info(service);
+	}
+	
+	@Test
+	public void testRegister() {
+		WordVO wordVO = new WordVO("REGISTER", "등록하다", 23L);
+		boolean success = service.register(wordVO);
+		
+		log.info("REGISTER SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testGet() {
+		WordVO wordVO = service.get(31L);
+		log.info("WORD_VO = " + wordVO);
+	}
+	
+	@Test
+	public void testModify() {
+		WordVO wordVO = service.get(31L);
+		wordVO.setWordName("MODIFY");
+		wordVO.setWordMeaning("수정하다");
+		
+		boolean success = service.modify(wordVO);
+		log.info("MODIFY SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testRemove() {
+		boolean success = service.remove(31L);
+		log.info("REMOVE SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testGetList() {
+		List<WordVO> list = service.getList();
+		list.forEach(word -> log.info(word));
+	}
+	
+	@Test
+	public void testGetListByCategoryId() {
+		List<WordVO> list = service.getListByCategoryId(23L);
+		list.forEach(word -> log.info(word));
+	}
+}
+```
+
