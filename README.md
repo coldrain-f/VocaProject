@@ -868,3 +868,456 @@ public class BookMapperTests {
 
 
 
+#### 단어 책 테이블 비즈니스 계층 구현
+
+`BookService 인터페이스`
+
+```java
+public interface BookService {
+
+	// 책 추가하기
+	public boolean register(BookVO bookVO);
+    
+	// 특정 책 조회하기
+	public BookVO get(Long bookId);
+	
+	// 특정 책 수정하기
+	public boolean modify(BookVO bookVO);
+	
+	// 특정 책 삭제하기
+	public boolean remove(Long bookId);
+	
+	// 모든 책의 목록 조회하기
+	public List<BookVO> getList();
+}
+```
+
+
+
+`BookServiceImpl 클래스`
+
+```java
+@Service
+@RequiredArgsConstructor
+public class BookServiceImpl implements BookService {
+
+	private final BookMapper mapper;
+	
+	/**
+	 * 책 레코드 하나를 추가하는 기능을 수행한다.
+	 * @param BookVO 추가할 책 모델
+	 * @return boolean 레코드가 정상적으로 추가 되었으면 true 실패하면 false
+	 */
+	@Override
+	public boolean register(BookVO bookVO) {
+		return ( mapper.insert(bookVO) == 1 );
+	}
+
+	/**
+	 * 책 레코드 하나를 조회하는 기능을 수행한다.
+	 * @param Long 책 아이디
+	 * @return BookVO 조회한 책 모델
+	 */
+	@Override
+	public BookVO get(Long bookId) {
+		return mapper.read(bookId);
+	}
+
+	/**
+	 * 책 레코드 하나를 수정하는 기능을 수행한다.
+	 * @param BookVO 수정할 책 모델
+	 * @return boolean 레코드가 정상적으로 수정 되었으면 true 실패하면 false
+	 */
+	@Override
+	public boolean modify(BookVO bookVO) {
+		return ( mapper.update(bookVO) == 1 );
+	}
+
+	/**
+	 * 책 레코드 하나를 삭제하는 기능을 수행한다.
+	 * @param Long 책 아이디
+	 * @return boolean 레코드가 정상적으로 삭제 되었으면 true 실패하면 false
+	 */
+	@Override
+	public boolean remove(Long bookId) {
+		return ( mapper.delete(bookId) == 1 );
+	}
+
+	/**
+	 * 모든 책 레코드 목록을 조회하는 기능을 수행한다.
+	 * @return List<BookVO> 조회된 모든 책 레코드 모델 리스트 
+	 */
+	@Override
+	public List<BookVO> getList() {
+		return mapper.readList();
+	}
+}
+
+```
+
+`BookServiceTests 클래스`
+
+```java
+@Log4j
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("file:src/main/webapp/WEB-INF/spring/root-context.xml")
+public class BookServiceTests {
+
+	@Autowired
+	private BookService service;
+	
+	@Test
+	public void testExist() {
+		log.info(service);
+	}
+	
+	@Test
+	public void testRegister() {
+		BookVO bookVO = new BookVO("BOOK REGISTER");
+		boolean success = service.register(bookVO);
+		
+		log.info("REGISTER SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testGet() {
+		BookVO bookVO = service.get(48L);
+		log.info("BOOK_VO = " + bookVO);
+	}
+	
+	@Test
+	public void testModify() {
+		BookVO bookVO = service.get(48L);
+		bookVO.setBookName("BOOK MODIFY");
+		
+		boolean success = service.modify(bookVO);
+		log.info("MODIFY SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testRemove() {
+		boolean success = service.remove(48L);
+		log.info("DELETE SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testGetList() {
+		List<BookVO> list = service.getList();
+		list.forEach(bookVO -> log.info(bookVO));
+	}
+}
+```
+
+
+
+#### 카테고리 테이블 영속 계층 구현
+
+`CategoryVO 클래스`
+
+```java
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+public class CategoryVO {
+
+	// 카테고리 아이디 AUTO SEQUENCE
+	private Long categoryId;
+	
+	// 카테고리 이름 UNIQUE
+	private String categoryName;
+	
+	// 책 아이디 UNIQUE
+	private Long bookId;
+	
+	// 등록일 DEFAULT SYSDATE
+	private Date regdate;
+	
+	// 수정일 DEFAULT SYSDATE
+	private Date updatedate;
+	
+	public CategoryVO(String categoryName, Long bookId) {
+		this.categoryName = categoryName;
+		this.bookId = bookId;
+	}
+	
+}
+```
+
+`CategoryMapper 인터페이스`
+
+```java
+public interface CategoryMapper {
+
+	// 카테고리 추가하기
+	public int insert(CategoryVO categoryVO);
+	
+	// 특정 카테고리 조회하기
+	public CategoryVO read(Long categoryId);
+	
+	// 특정 카테고리 수정하기
+	public int update(CategoryVO categoryVO);
+	
+	// 특정 카테고리 삭제하기
+	public int delete(Long categoryId);
+	
+	// 모든 카테고리의 목록 조회하기
+	public List<CategoryVO> readList();
+	
+	// 특정 책에 소속된 모든 카테고리의 목록 조회
+	public List<CategoryVO> readListByBookId(Long bookId);
+}
+```
+
+
+
+`CategoryMapper.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.coldrain.mapper.CategoryMapper">
+
+	<resultMap type="edu.coldrain.domain.CategoryVO" id="categoryResultMap">
+		<result property="categoryId" column="category_id"/>
+		<result property="categoryName" column="category_name"/>
+		<result property="bookId" column="book_id"/>
+	</resultMap>
+
+	<!-- 특정 책에 카테고리 추가하기 -->
+	<insert id="insert">
+		INSERT INTO TBL_CATEGORY (CATEGORY_NAME, BOOK_ID) VALUES (#{categoryName}, #{bookId})
+	</insert>
+	
+	<!-- 특정 카테고리 조회하기 -->
+	<select id="read" resultMap="categoryResultMap">
+		SELECT TBL_CATEGORY.* FROM TBL_CATEGORY
+		WHERE CATEGORY_ID = #{categoryId}
+	</select>
+	
+	<!-- 특정 카테고리 수정하기 -->
+	<update id="update">
+		UPDATE TBL_CATEGORY SET
+		CATEGORY_NAME = #{categoryName}
+		WHERE CATEGORY_ID = #{categoryId}
+	</update>
+	
+	<!-- 특정 카테고리 삭제하기 -->
+	<delete id="delete">
+		DELETE FROM TBL_CATEGORY
+		WHERE CATEGORY_ID = #{categoryId}
+	</delete>
+	
+	<!-- 모든 카테고리의 목록 조회 ( 내림차순 )-->
+	<select id="readList" resultMap="categoryResultMap">
+		<![CDATA[
+			SELECT /*+ INDEX_DESC(TBL_CATEGORY PK_TBL_CATEGORY)*/TBL_CATEGORY.* FROM TBL_CATEGORY
+		]]>
+	</select>
+	
+	<!-- 특정 책에 소속된 모든 카테고리의 목록 조회 ( 내림차순 ) -->
+	<select id="readListByBookId" resultMap="categoryResultMap">
+		SELECT /*+ INDEX_DESC(TBL_CATEGORY PK_TBL_CATEGORY)*/TBL_CATEGORY.* FROM TBL_CATEGORY
+		WHERE BOOK_ID = #{bookId}
+	</select>
+
+</mapper>
+```
+
+
+
+`CategoryMapperTests 클래스`
+
+```java
+@Log4j
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("file:src/main/webapp/WEB-INF/spring/root-context.xml")
+public class CategoryMapperTests {
+	
+	@Autowired
+	private CategoryMapper mapper;
+	
+	@Test
+	public void testExist() {
+		log.info(mapper);
+	}
+	
+	@Test
+	public void testInsert() {
+		CategoryVO categoryVO = new CategoryVO("Unit 00 - 테스트", 44L);
+		
+		int count = mapper.insert(categoryVO);
+		log.info("INSERT COUNT = " + count);
+	}
+	
+	@Test
+	public void testRead() {
+		CategoryVO categoryVO = mapper.read(28L);
+		
+		log.info("CATEGORY_VO = " + categoryVO);
+	}
+	
+	@Test
+	public void testUpdate() {
+		CategoryVO categoryVO = mapper.read(28L);
+		categoryVO.setCategoryName("Unit 00 - 테스트 (수정)");
+		
+		int count = mapper.update(categoryVO);
+		
+		log.info("UPDATE COUNT = " + count);
+	}
+	
+	@Test
+	public void testDelete() {
+		int count = mapper.delete(28L);
+		
+		log.info("DELETE COUNT = " + count);
+	}
+	
+	@Test
+	public void testReadList() {
+		List<CategoryVO> list = mapper.readList();
+		list.forEach(category -> log.info(category));
+	}
+	
+	@Test
+	public void testReadListByBookId() {
+		List<CategoryVO> list = mapper.readListByBookId(5L);
+		list.forEach(category -> log.info(category));
+	}
+}
+```
+
+#### 카테고리 테이블 비즈니스 계층 구현
+
+`CategoryService 인터페이스`
+
+```java
+public interface CategoryService {
+
+	// 카테고리 추가하기
+	public boolean register(CategoryVO categoryVO);
+    
+	// 특정 카테고리 조회하기
+	public CategoryVO get(Long categoryId);
+	
+	// 특정 카테고리 수정하기
+	public boolean modify(CategoryVO categoryVO);
+	
+	// 특정 카테고리 삭제하기
+	public boolean remove(Long categoryId);
+	
+	// 모든 카테고리의 목록 조회하기
+	public List<CategoryVO> getList();
+		
+	// 특정 책에 소속된 모든 카테고리의 목록 조회
+	public List<CategoryVO> getListByBookId(Long bookId);
+}
+```
+
+
+
+`CategoryServiceImpl 클래스`
+
+```java
+@Service
+@RequiredArgsConstructor
+public class CategoryServiceImpl implements CategoryService {
+
+	private final CategoryMapper mapper;
+	
+	@Override
+	public boolean register(CategoryVO categoryVO) {
+		return ( mapper.insert(categoryVO) == 1 );
+	}
+
+	@Override
+	public CategoryVO get(Long categoryId) {
+		return mapper.read(categoryId);
+	}
+
+	@Override
+	public boolean modify(CategoryVO categoryVO) {
+		return ( mapper.update(categoryVO) == 1 );
+	}
+
+	@Override
+	public boolean remove(Long categoryId) {
+		return ( mapper.delete(categoryId) == 1 );
+	}
+
+	@Override
+	public List<CategoryVO> getList() {
+		return mapper.readList();
+	}
+
+	@Override
+	public List<CategoryVO> getListByBookId(Long bookId) {
+		return mapper.readListByBookId(bookId);
+	}
+
+}
+```
+
+
+
+`CategoryServiceTests 클래스`
+
+```java
+@Log4j
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("file:src/main/webapp/WEB-INF/spring/root-context.xml")
+public class CategoryServiceTests {
+
+	@Autowired
+	private CategoryService service;
+	
+	@Test
+	public void testExist() {
+		log.info(service);
+	}
+	
+	@Test
+	public void testRegister() {
+		CategoryVO categoryVO = new CategoryVO("REGISTER TEST", 5L);
+		boolean success = service.register(categoryVO);
+		log.info("REGISTER SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testGet() {
+		CategoryVO categoryVO = service.get(29L);
+		log.info(categoryVO);
+	}
+	
+	@Test
+	public void testModify() {
+		CategoryVO categoryVO = service.get(29L);
+		categoryVO.setCategoryName("MODIFY TEST");
+		
+		boolean success = service.modify(categoryVO);
+		log.info("MODIFY SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testRemove() {
+		boolean success = service.remove(29L);
+		log.info("DELETE SUCCESS = " + success);
+	}
+	
+	@Test
+	public void testGetList() {
+		List<CategoryVO> list = service.getList();
+		list.forEach(category -> log.info(category));
+	}
+	
+	@Test
+	public void testGetListByBookId() {
+		List<CategoryVO> list = service.getListByBookId(5L);
+		list.forEach(category -> log.info(category));
+	}
+}
+```
+
