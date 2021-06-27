@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.coldrain.mapper.BookMapper">
+
+	<resultMap type="edu.coldrain.domain.BookVO" id="bookResultMap">
+		<result property="bookId" column="book_id" />
+		<result property="bookName" column="book_name" />
+	</resultMap>
+
+	<!-- 책 추가하기 -->
+	<insert id="insert" >
+		INSERT INTO TBL_BOOK (BOOK_NAME) VALUES (#{bookName})
+	</insert>
+	
+	<!-- 특정 책 조회하기 -->
+	<select id="read" resultMap="bookResultMap">
+		SELECT TBL_BOOK.* FROM TBL_BOOK
+		WHERE BOOK_ID = #{bookId}
+	</select>
+	
+	<!-- 특정 책 수정하기 -->
+	<update id="update">
+		UPDATE TBL_BOOK SET
+		BOOK_NAME = #{bookName}
+		WHERE BOOK_ID = #{bookId}
+	</update>
+	
+	<!-- 특정 책 삭제하기 -->
+	<delete id="delete">
+		DELETE FROM TBL_BOOK
+		WHERE BOOK_ID = #{bookId}
+	</delete>
+	
+	<!-- 모든 책의 목록 조회하기 (내림차순) -->
+	<select id="readList" resultMap="bookResultMap">
+		<![CDATA[
+			SELECT /*+ INDEX_DESC(TBL_BOOK PK_TBL_BOOK)*/TBL_BOOK.* FROM TBL_BOOK
+		]]>
+	</select>
+	
+</mapper>

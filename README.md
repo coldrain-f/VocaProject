@@ -1,4 +1,4 @@
-## 2021-06-27(일) 작업내용
+## 2021-06-26(토) 작업내용
 
 #### 데이터베이스 ERD
 
@@ -150,7 +150,7 @@ ALTER TABLE TBL_WORD
 
 3. 책 이름이 중복되지 않도록 UNIQUE 설정을 걸어줬다.
    - `단어가 읽기다 기본편`이 이미 존재 하는데, 또 다시 `단어가 읽기다 기본편`이 추가되지 않도록 설정했다.
-4. 카테고리 이름이 중복되지 않도록 UNIQUE 설정을 걸어줬다.
+4. 카테고리가 중복되지 않도록 카테고리 이름과 소속된 책의 번호를 묶어서 UNIQUE 설정을 걸어줬다.
    - `단어가 읽기다 기본편`에 `Unit 01 - 요리`카테고리가 이미 존재하는데, 또 다시 `Unit 01 - 요리`가 추가되지 않도록 설정했다.
    - `단어가 읽기다 기본편`에 `Unit 01 - 요리`카테고리가 이미 존재하고 `단어가 읽기다 실전편`에 `Unit 01 -요리`가 추가되는것은 허용한다. 
 5. 단어가 중복되지 않도록 단어 이름과 단어 뜻을 묶어서 UNIQUE 설정을 걸어줬다.
@@ -161,7 +161,7 @@ ALTER TABLE TBL_WORD
 
 
 
-#### 테이블 CRUD SQL테스트
+#### 테이블 CRUD SQL 테스트
 
 ```SQL
 -- 책 조회
@@ -215,4 +215,656 @@ INSERT INTO TBL_WORD(WORD_NAME, WORD_MEANING, CATEGORY_ID) VALUES ('tasty', '맛
    - `단어가 읽기다 기본편`의 `Unit 01 - 요리`카테고리에 `take, (수업을)듣다`를 추가하고 `take, (의자에)앉다`를 추가하면 추가 되었다.
 7. 단어 테이블에 단어의 뜻은 중복되고 단어의 이름은 다르게 추가되는지 테스트 ---> 추가됨(테스트 성공)
    - `단어가 읽기다 기본편`의 `Unit 01 - 요리`카테고리에 `delicious, 맛있는`을 추가하고 `tasty, 맛있는`을 추가하면 추가 되었다.
+
+
+
+
+
+## 2021-06-27(일) 작업내용
+
+#### Mybatis Mapper에 사용할 각 테이블의 CRUD 쿼리문 생성
+
+
+
+```sql
+/* 단어 책 테이블 CRUD */
+-- 책 추가하기
+INSERT INTO TBL_BOOK (BOOK_NAME) VALUES ('추가할 책 이름');
+
+-- 특정 책 조회하기
+SELECT TBL_BOOK.* FROM TBL_BOOK
+WHERE BOOK_ID = 21;
+
+-- 특정 책 수정하기
+UPDATE TBL_BOOK SET
+BOOK_NAME = '수정할 책 이름'
+WHERE BOOK_ID = 21;
+
+-- 특정 책 삭제하기
+DELETE FROM TBL_BOOK
+WHERE BOOK_ID = 2;
+
+-- 모든 책의 목록 조회하기 (새로 추가된 책부터 보여주도록 내림차순 조회)
+SELECT /*+ INDEX_DESC(TBL_BOOK PK_TBL_BOOK)*/TBL_BOOK.* FROM TBL_BOOK;
+
+/* 카테고리 테이블 CRUD */
+-- 특정 책에 카테고리 추가하기 (추가할 카테고리 이름, 부모 책의 ID)
+INSERT INTO TBL_CATEGORY (CATEGORY_NAME, BOOK_ID) VALUES ('추가할 카테고리 이름', 5);
+
+-- 특정 카테고리 조회하기
+SELECT TBL_CATEGORY.* FROM TBL_CATEGORY
+WHERE CATEGORY_ID = 21;
+
+-- 특정 카테고리 수정하기
+UPDATE TBL_CATEGORY SET
+CATEGORY_NAME = '수정할 카테고리 이름'
+WHERE CATEGORY_ID = 21;
+
+-- 특정 카테고리 삭제하기
+DELETE FROM TBL_CATEGORY
+WHERE CATEGORY_ID = 26;
+
+-- 모든 카테고리의 목록 조회 (새로 추가된 카테고리 부터 보여주도록 내림차순 조회)
+SELECT /*+ INDEX_DESC(TBL_CATEGORY PK_TBL_CATEGORY)*/TBL_CATEGORY.* FROM TBL_CATEGORY;
+
+-- 특정 책에 소속된 모든 카테고리의 목록 조회 (새로 추가된 카테고리 부터 보여주도록 내림차순 조회)
+SELECT /*+ INDEX_DESC(TBL_CATEGORY PK_TBL_CATEGORY)*/TBL_CATEGORY.* FROM TBL_CATEGORY
+WHERE BOOK_ID = 2;
+
+-- 동작 확인용 책 테이블과 카테고리 테이블 INNER JOIN
+SELECT B.BOOK_ID, B.BOOK_NAME, C.CATEGORY_ID, C.CATEGORY_NAME 
+FROM TBL_BOOK B INNER JOIN TBL_CATEGORY C ON B.BOOK_ID = C.BOOK_ID
+ORDER BY BOOK_ID DESC, CATEGORY_ID ASC;
+
+/* 단어 테이블 CRUD */
+-- 특정 카테고리에 단어 추가하기
+INSERT INTO TBL_WORD (WORD_NAME, WORD_MEANING, CATEGORY_ID) VALUES ('추가할 단어 이름', '추가할 단어 뜻', 1);
+
+-- 특정 단어 조회하기
+SELECT TBL_WORD.* FROM TBL_WORD
+WHERE WORD_ID = 21;
+
+-- 특정 단어 수정하기
+UPDATE TBL_WORD SET
+WORD_NAME = '수정할 단어 이름',
+WORD_MEANING = '수정할 단어 뜻'
+WHERE WORD_ID = 21;
+
+-- 특정 단어 삭제하기
+DELETE FROM TBL_WORD
+WHERE WORD_ID = 21;
+
+-- 모든 단어 목록 조회 (새로 추가된 카테고리 부터 보여주도록 내림차순 조회)
+SELECT /*+ INDEX_DESC(TBL_WORD PK_TBL_WORD)*/TBL_WORD.* FROM TBL_WORD;
+
+-- 특정 카테고리의 모든 단어 목록 조회 (새로 추가된 카테고리 부터 보여주도록 내림차순 조회)
+SELECT /*+ INDEX_DESC(TBL_WORD PK_TBL_WORD)*/TBL_WORD.* FROM TBL_WORD
+WHERE CATEGORY_ID = 1;
+
+-- 동작 확인용 카테고리 테이블과 단어 테이블 INNER JOIN
+SELECT B.BOOK_ID, B.BOOK_NAME, C.CATEGORY_ID, C.CATEGORY_NAME, W.WORD_ID, W.WORD_NAME, W.WORD_MEANING 
+FROM TBL_CATEGORY C INNER JOIN TBL_WORD W ON C.CATEGORY_ID = W.CATEGORY_ID
+INNER JOIN TBL_BOOK B ON B.BOOK_ID = C.BOOK_ID
+```
+
+
+
+SQL문들이 정상적으로 동작하는지 실제 관리자 페이지에서 데이터를 추가한다고 가정하고 더미 데이터를 추가하고, 수정, 삭제, 목록을 테스트 해 보았다.
+
+일단 모든 기능들이 생각했던대로 정상적으로 동작되었다. 
+
+이후에 추가로 필요한 SQL문이 있다면 그때 가서 추가하도록 하겠다.
+
+![CRUD](C:\Users\user\Desktop\(최신)단어 학습 프로젝트\TyporaImages\CRUD.PNG)
+
+
+
+#### 메이븐(Maven) 프로젝트 생성 및 세팅
+
+`pom.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>edu.coldrain</groupId>
+	<artifactId>controller</artifactId>
+	<name>VocaProject</name>
+	<packaging>war</packaging>
+	<version>1.0.0-BUILD-SNAPSHOT</version>
+	<properties>
+		<java-version>1.8</java-version>
+		<org.springframework-version>5.2.9.RELEASE</org.springframework-version>
+		<org.aspectj-version>1.6.10</org.aspectj-version>
+		<org.slf4j-version>1.6.6</org.slf4j-version>
+	</properties>
+	<dependencies>
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework-version}</version>
+			<exclusions>
+				<!-- Exclude Commons Logging in favor of SLF4j -->
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+
+		<!-- AspectJ -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${org.aspectj-version}</version>
+		</dependency>
+
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${org.slf4j-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- @Inject -->
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+
+		<!-- 서블릿 관련 라이브러리 -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<!-- //서블릿 관련 라이브러리 -->
+
+		<!-- JUnit 테스트 라이브러리 -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- 롬복 라이브러리 -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- log4j 라이브러리 -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
+
+		<!-- 데이터베이스 관련 라이브러리 -->
+
+		<!-- Oracle JDBC8 드라이버 -->
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc8</artifactId>
+			<version>21.1.0.0</version>
+		</dependency>
+
+		<!-- HikariCP 커넥션 풀 라이브러리 -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>3.4.5</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.4.6</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+
+		<!-- 스프링에서 트랜잭션 처리 라이브러리 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+
+		<!-- 스프링에서 데이터베이스 처리 라이브러리 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+
+		<!-- 스프링 테스트 라이브러리 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+
+		<!-- Log4jdbc JDBC 로그 라이브러리 -->
+		<dependency>
+			<groupId>org.bgee.log4jdbc-log4j2</groupId>
+			<artifactId>log4jdbc-log4j2-jdbc4</artifactId>
+			<version>1.16</version>
+		</dependency>
+
+		<!-- //데이터베이스 관련 라이브러리 -->
+
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<additionalProjectnatures>
+						<projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+					</additionalProjectnatures>
+					<additionalBuildcommands>
+						<buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+					</additionalBuildcommands>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<compilerArgument>-Xlint:all</compilerArgument>
+					<showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<configuration>
+					<mainClass>org.test.int1.Main</mainClass>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+```
+
+
+
+`root-context.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- 데이터베이스 관련된 빈 설정 -->
+
+	<!-- HikariCP 설정 -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<!-- log4jdbc-log4j2 사용 설정 추가 -->
+		<property name="driverClassName"
+			value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy" />
+		<property name="jdbcUrl"
+			value="jdbc:log4jdbc:oracle:thin:@localhost:1521:XE" />
+
+		<property name="username" value="voca2" />
+		<property name="password" value="voca2" />
+	</bean>
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"
+		destroy-method="close">
+		<constructor-arg ref="hikariConfig"></constructor-arg>
+	</bean>
+
+	<!-- SQLSessionFactory 설정 -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+	<!-- mybatis scan 설정 -->
+	<mybatis-spring:scan
+		base-package="edu.coldrain.mapper" />
+
+	<!-- //데이터베이스 관련된 빈 설정 -->
+</beans>
+```
+
+
+
+`log4jdbc.log4j2.properties`
+
+```properties
+log4jdbc.spylogdelegator.name=net.sf.log4jdbc.log.slf4j.Slf4jSpyLogDelegator
+```
+
+
+
+#### JDBC 연결 테스트
+
+```java
+package edu.coldrain.persistence;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import org.junit.Test;
+
+import lombok.extern.log4j.Log4j;
+
+@Log4j
+public class JDBCTests {
+
+    private static final String URL = "jdbc:oracle:thin:@localhost:1521:XE";
+    private static final String USER = "voca2";
+    private static final String PASSWORD = "voca2";
+
+    static {
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void textConnection() {
+        try {
+
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+
+            //정상적으로 데이터베이스가 연결되면 연결된 Connection 객체가 출력된다.
+            log.info(connection);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+
+
+#### Datasource 테스트
+
+```java
+package edu.coldrain.persistence;
+
+import static org.junit.Assert.fail;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import lombok.extern.log4j.Log4j;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("file:src/main/webapp/WEB-INF/spring/root-context.xml")
+@Log4j
+public class DataSourceTests {
+
+	@Autowired
+	private DataSource dataSource;
+	
+	@Autowired
+	private SqlSessionFactory sqlSessionFactory;
+	
+	@Test
+	public void testConnection() throws Exception {
+		
+		try(Connection con = dataSource.getConnection()) {
+			log.info(con);
+		} catch(Exception e) {
+			fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testMyBatis() {
+		
+		try (SqlSession session = sqlSessionFactory.openSession();
+				Connection con = session.getConnection(); ) {
+			log.info(session);
+			log.info(con);
+		} catch (SQLException e) {
+			fail(e.getMessage());
+		}
+	}
+}
+```
+
+
+
+#### 단어 책 테이블 영속 계층 구현
+
+`BookVO 정의`
+
+```java
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+public class BookVO {
+
+	// 책 아이디 AUTO SEQUENCE
+	private Long bookId;
+
+	// 책 이름 UNIQUE
+	private String bookName;
+
+	// 등록일 DEFAULT SYSDATE
+	private Date regdate;
+
+	// 수정일 DEFAULT SYSDATE
+	private Date updatedate;
+	
+	public BookVO(String bookName) {
+		this.bookName = bookName;
+	}
+}
+```
+
+`BookMapper 인터페이스 정의`
+
+```java
+public interface BookMapper {
+
+	// 책 추가하기
+	public int insert(BookVO bookVO);
+    
+	// 특정 책 조회하기
+	public BookVO read(Long bookId);
+	
+	// 특정 책 수정하기
+	public int update(BookVO bookVO);
+	
+	// 특정 책 삭제하기
+	public int delete(Long bookId);
+	
+	// 모든 책의 목록 조회하기
+	public List<BookVO> readList();
+
+}
+```
+
+
+
+`BookMapper.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.coldrain.mapper.BookMapper">
+
+	<resultMap type="edu.coldrain.domain.BookVO" id="bookResultMap">
+		<result property="bookId" column="book_id" />
+		<result property="bookName" column="book_name" />
+	</resultMap>
+
+	<!-- 책 추가하기 -->
+	<insert id="insert" >
+		INSERT INTO TBL_BOOK (BOOK_NAME) VALUES (#{bookName})
+	</insert>
+	
+	<!-- 특정 책 조회하기 -->
+	<select id="read" resultMap="bookResultMap">
+		SELECT TBL_BOOK.* FROM TBL_BOOK
+		WHERE BOOK_ID = #{bookId}
+	</select>
+	
+	<!-- 특정 책 수정하기 -->
+	<update id="update">
+		UPDATE TBL_BOOK SET
+		BOOK_NAME = #{bookName}
+		WHERE BOOK_ID = #{bookId}
+	</update>
+	
+	<!-- 특정 책 삭제하기 -->
+	<delete id="delete">
+		DELETE FROM TBL_BOOK
+		WHERE BOOK_ID = #{bookId}
+	</delete>
+	
+	<!-- 모든 책의 목록 조회하기 (내림차순) -->
+	<select id="readList" resultMap="bookResultMap">
+		<![CDATA[
+			SELECT /*+ INDEX_DESC(TBL_BOOK PK_TBL_BOOK)*/TBL_BOOK.* FROM TBL_BOOK
+		]]>
+	</select>
+	
+</mapper>
+```
+
+
+
+`BookMapperTests 정의`
+
+```java
+@Log4j
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("file:src/main/webapp/WEB-INF/spring/root-context.xml")
+public class BookMapperTests {
+
+	@Autowired
+	private BookMapper mapper;
+	
+	@Test
+	public void testExist() {
+		log.info(mapper);
+	}
+	
+	@Test
+	public void testInsert() {
+		BookVO bookVO = new BookVO("단어가 읽기다 테스트편3");
+		int count = mapper.insert(bookVO);
+		
+		log.info("INSERT COUNT = " + count);
+		log.info("BOOK_VO = " + bookVO);
+	}
+	
+	@Test
+	public void testRead() {
+		BookVO bookVO = mapper.read(5L);
+		log.info("BOOK_VO = " + bookVO);
+	}
+	
+	@Test
+	public void testUpdate() {
+		BookVO bookVO = mapper.read(47L);
+		bookVO.setBookName("단어가 읽기다 수정편");
+		
+		int count = mapper.update(bookVO);
+		log.info("UPDATE COUNT = " + count);
+	}
+	
+	@Test
+	public void testDelete() {
+		int count = mapper.delete(47L);
+		log.info("DELETE COUNT = " + count);
+	}
+	
+	@Test
+	public void testReadList() {
+		List<BookVO> list = mapper.readList();
+		list.forEach(book -> log.info(book));
+	}
+}
+```
+
+
 
