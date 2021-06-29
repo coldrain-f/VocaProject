@@ -366,9 +366,57 @@
                             </div>
                             
                             <script type="text/javascript">
-                            	//자바스크립트 모듈 패턴 
+                            	console.log("CategoryService Module")
+                            	var categoryService = (function() {
+                            		
+                            		//특정 책의 모든 카테고리 리스트
+                            		function getList(bookId, callback, error) {
+                            			const url = "/books/" + bookId + "/categories"
+                            			$.getJSON(url, function(list) {
+                            				if (callback) {
+                            					callback(list)
+                            				}
+                            			}).fail(function(xhr, status, err) {
+                            				if (error) {
+                            					error(err)
+                            				}
+                            			})
+                            		}
+                            		
+                            		return {
+                            			getList: getList
+                            		}
+                            	})()
+                            	
+                            	console.log("WordService Module")
+                            	var wordService = (function() {
+                            		
+                            		function getList(categoryId, callback, error) {
+                            			const url = "/categories/" + categoryId + "/words"
+                            			$.getJSON(url, function(list) {
+                            				if (callback) {
+                            					callback(list)
+                            				}
+                            			}).fail(function(xhr, status, err) {
+                            				if (error) {
+                            					error(err)
+                            				}
+                            			})
+                            		}
+                            		
+                            		return {
+                            			getList: getList
+                            		}
+                            	})()
+                            	//단어 서비스 모듈 테스트 (성공 ------ 나중에 지워야 됨)
+                            	wordService.getList(1, function(list) {
+                            		const len = list.length || 0
+                            		for (let i = len - 1; i >= 0; i--) {
+                            			console.log(list[i])
+                            		}
+                            	})
+                            	
                             	console.log("BookService Module")
-                            	//즉시 실행 함수
                             	var bookService = (function() {
                             		//책 리스트
                             		function getList(callback, error) {
@@ -424,10 +472,31 @@
                             			})
                             		}
                             		
+                            		//책 수정하기
+                            		function modify(bookVO, callback, error) {
+                            			$.ajax({
+                            				type: "patch",
+                            				url: "/books/" + bookVO.bookId,
+                            				data: JSON.stringify(bookVO),
+                            				contentType: "application/json; charset=utf-8",
+                            				success: function(result, status, xhr) {
+                            					if (callback) {
+                            						callback(result)
+                            					}
+                            				},
+                            				error: function(xhr, status, er) {
+                            					if (error) {
+                            						error(er)
+                            					}
+                            				}
+                            			})
+                            		}
+                            		
                            			return {
                            				getList: getList,
                            				add: add,
-                           				remove: remove
+                           				remove: remove,
+                           				modify: modify
                            			}
                             	})()
                             	
@@ -447,19 +516,20 @@
 	                            					bookName: list[i].bookName,
 	                            					regdate: list[i].regdate,
 	                            					updatedate: list[i].updatedate
-	                            			}
+	                            			} 
 	                            			createTableData(bookVO)
 	                            		}
 	                            		
 	                            	})
 	                            	
+	                            	
 	                            	//추가 모달창에서 추가하기 버튼을 클릭하면 데이터 추가
 	                            	let addButton = document.querySelector("#addButton")
 	                            	addButton.addEventListener("click", function() {
-	                            		const bookName = document.querySelector("input[name='bookName']").value
+	                            		const bookName = document.querySelector("#addBookName").value
 	                            		console.log("bookName = " + bookName)
 	                            		
-	                            		let bookVO = { bookName: bookName }
+	                            		const bookVO = { bookName: bookName }
 	                            		bookService.add(bookVO, function() {
 	                            			$("#addModal").modal("hide")
 	                            			const result = document.querySelector("#result")
@@ -469,14 +539,14 @@
 	                            	})
 	                            	
 	                            	//상태 모달창에서 확인 버튼을 클릭하면 새로고침
-	                            	let stateCheckButton = document.querySelector("#stateCheckButton")
+	                            	const stateCheckButton = document.querySelector("#stateCheckButton")
 	                            	stateCheckButton.addEventListener("click", function() {
 	                            		$("#resultModal").modal("hide")
 	                            		location.reload(true)
 	                            	})
 	                            	
 	                            	//삭제 모달창에서 삭제하기 버튼을 클릭하면 데이터 삭제
-	                            	let removeButton = document.querySelector("#removeButton")
+	                            	const removeButton = document.querySelector("#removeButton")
 	                            	removeButton.addEventListener("click", function() {
 	                            		const bookName = document.querySelector("#removeBookName").value
 	                            		const bookId = document.querySelector("#removeBookId").value
@@ -489,64 +559,86 @@
 	                            		})
 	                            	})
 	                            	
+	                            	//수정 모달창에서 수정하기 버튼을 클릭하면 데이터 수정
+	                            	const modifyButton = document.querySelector("#modifyButton")
+	                            	modifyButton.addEventListener("click", function() {
+	                            		const bookId = document.querySelector("#modifyBookId").value
+	                            		const bookName = document.querySelector("#modifyBookName").value
+	                            		
+	                            		//console.log("bookId = " + bookId)
+	                            		//console.log("bookName = " + bookName)
+	                            		const bookVO = {
+	                            			bookId: bookId,
+	                            			bookName: bookName
+	                            		}
+	                            		bookService.modify(bookVO, function() {
+	                            			$("#modifyModal").modal("hide")
+	                            			const result = document.querySelector("#result")
+	                            			result.textContent = "[ " + bookVO.bookName + " ]" + "을/를 수정했습니다."
+	                            			$("#resultModal").modal("show")
+	                            		})
+	                            		
+	                            	})
+	                            	
+	                            	
 	                            	function createTableData(bookVO) {
 	                            		//console.log("createTableData()")
-										let tbody = document.querySelector("tbody")
-										let tr = document.createElement("tr")
+										const tbody = document.querySelector("tbody")
+										const tr = document.createElement("tr")
 	                            		
 										// <th>ALL</th>
-	                            		let all = document.createElement("td")
-	                            		let checkbox = document.createElement("input")
+	                            		const all = document.createElement("td")
+	                            		const checkbox = document.createElement("input")
 	                            		checkbox.setAttribute("type", "checkbox")
 	                            		all.appendChild(checkbox)
 	                            		
 	                            		// <th><BOOK_ID></th>
-	                            		let bookId = document.createElement("td")
+	                            		const bookId = document.createElement("td")
 	                            		bookId.textContent = bookVO.bookId
 	                            		
 	                            		// <th>BOOK_NAME</th>
-	                            		let bookName = document.createElement("td")
+	                            		const bookName = document.createElement("td")
 	                            		bookName.textContent = bookVO.bookName
 	                            		
 	                            		// <th>REGDATE</th>
-	                            		let regdate = document.createElement("td")
+	                            		const regdate = document.createElement("td")
 	                            		regdate.textContent = bookVO.regdate
 	                            		
 	                            		// <th>UPDATEDATE</th>
-	                            		let updatedate = document.createElement("td")
+	                            		const updatedate = document.createElement("td")
 	                            		updatedate.textContent = bookVO.updatedate
 	                            		
 	                            		// <th>ACTIONS</th>
-	                            		let actions = document.createElement("td")
+	                            		const actions = document.createElement("td")
 	                            		actions.setAttribute("class", "text-center")
-	                            		let modifyButton = document.createElement("button")
+	                            		const modifyButton = document.createElement("button")
 	                            		modifyButton.setAttribute("class", "btn text-dark p-0 modalEventButton")
 	                            		modifyButton.setAttribute("type", "button")
 	                            		modifyButton.setAttribute("data-toggle", "modal")
 	                            		modifyButton.setAttribute("data-target", "#modifyModal")
 	                            		
-	                            		let modifyIcon = document.createElement("i")
+	                            		const modifyIcon = document.createElement("i")
 	                            		modifyIcon.setAttribute("class", "fas fa-edit")
 	
 	                            		modifyButton.appendChild(modifyIcon)
 	                            		actions.appendChild(modifyButton)
 	
-	                            		let removeButton = document.createElement("button")
+	                            		const removeButton = document.createElement("button")
 	                            		removeButton.setAttribute("class", "event btn text-dark p-0 ml-1 modalEventButton")
 	                            		removeButton.setAttribute("type", "button")
 	                            		removeButton.setAttribute("data-toggle", "modal")
 	                            		removeButton.setAttribute("data-target", "#deleteModal")
 	                            		
-	                            		let removeIcon = document.createElement("i")
+	                            		const removeIcon = document.createElement("i")
 	                            		removeIcon.setAttribute("class", "fas fa-trash-alt")
 	                            		
 	                            		removeButton.appendChild(removeIcon)
 	                            		actions.appendChild(removeButton)
 	                            		
 	                            		// <th>STATE</th>
-	                            		let state = document.createElement("td")
+	                            		const state = document.createElement("td")
 	                            		state.setAttribute("class", "text-center")
-	                            		let span = document.createElement("span")
+	                            		const span = document.createElement("span")
 	                            		span.setAttribute("class"," badge badge-pill badge-info")
 	                            		span.textContent = "NEW"
 	                            		
@@ -580,14 +672,31 @@
 							            const bookName = td.eq(2).text()
 							
 							            //수정 창
-							            document.getElementById("modify_folder_fno").value = bookId
-							            document.getElementById("modify_folder_name").placeholder = bookName
+							            document.getElementById("modifyBookId").value = bookId
+							            document.getElementById("modifyBookName").placeholder = bookName
 							            document.getElementById("modify_result0").innerText = bookName
 							
 							            //삭제 창
 							            document.getElementById("removeBookId").value = bookId
 							            document.getElementById("removeBookName").value = bookName
 							            document.getElementById("remove_result0").innerText = bookName
+							            
+							            //삭제 창 카테고리 셀렉트
+							            const categorySelect = document.querySelector("#categorySelect")
+							            
+							            categoryService.getList(bookId, function(list) {
+							            	const len = list.length || 0
+							            	for (i = len - 1; i >= 0; i--) {
+							            		const option = document.createElement("option")
+							            		option.setAttribute("value", list[i].categoryId)
+							            		if (i == len - 1) {
+							            			option.setAttribute("selected", "selected")
+							            		}
+							            		option.textContent = list[i].categoryName
+							            		categorySelect.appendChild(option)
+							            	}
+							            })
+							            
 	                            	})  	
                             	})
                             	
@@ -620,7 +729,7 @@
 
                             <!-- 폴더 수정하기 모달창 -->
                             <div class="modal fade" id="modifyModal" tabindex="-1" aria-hidden="true">
-                                <form action="" method="POST">
+                                <form>
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -630,12 +739,12 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label mt-2" for="modify_folder_fno">번호</label>
-                                                <input class="form-control" type="text" name="fno" id="modify_folder_fno" value="1" readonly />
+                                                <label class="form-label mt-2" for="modifyBookId">번호</label>
+                                                <input class="form-control" type="text" name="bookId" id="modifyBookId" value="1" readonly />
     
-                                                <label class="form-label mt-2" for="modify_folder_name">폴더 이름</label>
-                                                <input class="form-control mb-4" type="text" name="folder_name" id="modify_folder_name" 
-                                                   onkeyup="print_result('modify_folder_name', 'modify_result')" placeholder="단어가 읽기다 기본편" autocomplete="off" />
+                                                <label class="form-label mt-2" for="modifyBookName">폴더 이름</label>
+                                                <input class="form-control mb-4" type="text" name="bookName" id="modifyBookName" 
+                                                   onkeyup="print_result('modifyBookName', 'modify_result')" placeholder="단어가 읽기다 기본편" autocomplete="off" />
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -658,7 +767,7 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                                                <button type="submit" class="btn btn-primary">수정하기</button>
+                                                <button id="modifyButton" type="button" class="btn btn-primary">수정하기</button>
                                             </div>
                                         </div>
                                     </div>
@@ -684,20 +793,15 @@
                                                 <label class="form-label mt-2" for="removeBookName">폴더명</label>
                                                 <input class="form-control" type="text" name="folder_name" id="removeBookName" value="단어가 읽기다 기본편" readonly />
 
-                                                <label class="form-label mt-2" for="category_list">소속된 카테고리</label>
-                                                <select class="custom-select" name="" id="category_list">
-                                                    <option value="Unit 01 - 요리">Unit 01 - 요리</option>
-                                                    <option value="Unit 02 - 일상1">Unit 02 - 일상1</option>
-                                                    <option value="Unit 03 - 일상2">Unit 03 - 일상2</option>
-                                                    <option value="Unit 04 - 신체">Unit 04 - 신체</option>
-                                                    <option value="Unit 05 - 취미1">Unit 05 - 취미1</option>
+                                                <label class="form-label mt-2" for="categorySelect">소속된 카테고리</label>
+                                                <select class="custom-select" name="" id="categorySelect">
                                                 </select>
 
                                                 <label class="form-label mt-2" for="word_list">소속된 단어</label>
-                                                <select class="custom-select mb-4" name="" id="word_list">
-                                                    <option value="">[카테고리: Unit 01 - 요리, 단어: spice, 양념]</option>
-                                                    <option value="">[카테고리: Unit 01 - 요리, 단어: delicous, 맛있는]</option>
-                                                    <option value="">[카테고리: Unit 01 - 요리, 단어: bake, (빵을)굽다]</option>
+                                                <select class="custom-select mb-4" name="" id="word_list" size="5">
+                                                	<c:forEach var="i" begin="1" end="20">
+	                                                    <option value="">단어: [ spice ] 뜻: [ 양념 ]</option>
+                                                	</c:forEach>
                                                 </select>
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -742,8 +846,8 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label mt-2" for="add_book_name">폴더명</label>
-                                                <input class="form-control mb-4" type="text" name="bookName" id="add_book_name" 
+                                                <label class="form-label mt-2" for="addBookName">폴더명</label>
+                                                <input class="form-control mb-4" type="text" name="bookName" id="addBookName" 
                                                     onkeyup="print_result('add_book_name', 'add_result')" placeholder="추가할 폴더명을 입력해 주세요..." autocomplete="off" />
                                             
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -812,7 +916,6 @@
 
                             <div class="row">
                                 <div class="col d-flex justify-content-end">
-                                    <button class="btn btn-primary mr-2" type="button" data-toggle="modal" data-target="#resultModal">결과 모달창</button>
                                     <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#addModal">추가하기</button>
                                     <button type="button" class="ml-2 btn btn-primary" onclick="alert('선택된 기능이 구현되지 않았습니다.')">선택된 폴더 삭제</button>
                                 </div>

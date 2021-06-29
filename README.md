@@ -1962,3 +1962,11 @@ public class WordController {
 }
 ```
 
+
+
+## 2021-06-29(화) 작업내용
+
+책 관리 jsp 페이지 Ajax를 이용한 CRUD 구현 완료
+
+딜리트 모달창 세부 내용 구현예정
+

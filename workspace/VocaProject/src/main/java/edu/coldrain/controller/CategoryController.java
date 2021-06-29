@@ -34,7 +34,7 @@ public class CategoryController {
 	 *    /categories/{categoryId} DELETE 1번 카테고리 삭제하기
 	 */
 	
-	//특정 책의 모든 카테고리 목록 조회하기
+	//특정 책의 모든 카테고리 목록 조회하기 (내림차순)
 	@GetMapping(value = "/books/{bookId}/categories",
 				produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<CategoryVO>> getList(@PathVariable("bookId") Long bookId) {
