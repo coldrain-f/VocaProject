@@ -10,14 +10,20 @@ import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Controller
-@RequestMapping("/admin/book/*")
 @RequiredArgsConstructor
-public class BookAdminController {
+public class ViewController {
 
-	@GetMapping("/list")
-	public String list(Model model) {
-		log.info("BookAdminController.list()");
+	@GetMapping("/admin/book/list")
+	public String bookList() {
+		log.info("ViewController.bookList()");
 		
 		return "admin/book_list";
+	}
+	
+	@GetMapping("/admin/category/list")
+	public String categoryList() {
+		log.info("ViewController.categoryList()");
+		
+		return "admin/category_list";
 	}
 }

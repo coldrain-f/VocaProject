@@ -1,8 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <!DOCTYPE html>
 <html lang="ko">
 
@@ -14,16 +11,18 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>FOLDER CRUD</title>
+    <title>CATEGORY CRUD</title>
 
     <!-- Custom fonts for this template-->
     <link href="/resources/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
     <!-- Custom styles for this template-->
     <link href="/resources/css/sb-admin-2.min.css" rel="stylesheet">
 
-    <!-- JQuery -->
+    <!-- JQuery import -->
     <script src="https://code.jquery.com/jquery-2.2.1.js"></script>
 
     <style>
@@ -307,11 +306,22 @@
                 </nav>
                 <!-- End of Topbar -->
 
-                <!-- Begin Page Content -->
+                <!-- 카테고리 관리 테이블 -->
                 <div class="container-fluid">
                     <div class="card shadow">
                         <div class="card-header">
-                            <div class="card-title">폴더 관리</div>
+                            <!-- 카테고리 조회 폼 -->
+                            <form action="" method="GET">
+                                <div class="row mb-4 pl-2 pr-2">
+                                    <label for="bookSelect" class="form-label">폴더</label>
+                                    <select class="custom-select" name="folder_name" id="bookSelect"></select>
+                                </div>
+    
+                                <div class="row d-flex justify-content-end mr-0">
+                                    <button id="categoryListButton" type="button" class="btn btn-info">카테고리 조회</button>
+                                </div>
+                            </form>
+                            <!-- 카테고리 조회 폼 -->
                         </div>
                         <div class="card-body">
                             <form class="form-inline" action="" method="">
@@ -331,8 +341,7 @@
                                 <form class="form-inline" action="" method="GET">
                                     <div class="input-group input-group-sm">
                                         <select class="custom-select custom-select-sm mr-1" name="" id="">
-                                            <option value="">단어</option>
-                                            <option value="">뜻</option>
+                                            <option value="">카테고리</option>
                                         </select>
                                         <input class="form-control" type="text">
 
@@ -345,75 +354,160 @@
                                 </form>
                             </div>
 
-                            <!-- Begin Table -->
+                            <!-- 테이블 데이터 -->
                             <div class="table-responsive bg-white">
                                 <table class="table table-sm table-hover">
                                     <caption class="mt-2">Showing 1 to 10 of 57 entries</caption>
                                     <thead>
                                         <tr>
                                             <th><input type="checkbox" id="all"><label class="form-label p-0 m-0 pl-2" for="all">ALL</label></th>
-                                            <th>BOOK_ID</th>
-                                            <th>BOOK_NAME</th>
+                                            <th>CATEGORY_ID</th>
+                                            <th>CATEGORY_NAME</th>
                                             <th>REGDATE</th>
                                             <th>UPDATEDATE</th>
                                             <th class="text-center">ACTIONS</th>
                                             <th class="text-center">STATE</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                    </tbody>
+                                    <tbody></tbody>
                                 </table>
                             </div>
+                            <!-- ./테이블 데이터 -->
                             
-                            <!-- Ajax 모듈 -->
+                            <!-- 책 서비스 모듈 -->
                             <script src="/resources/js/bookService.js"></script>
+                            
+                            <!-- 카테고리 서비스 모듈 -->
                             <script src="/resources/js/categoryService.js"></script>
-                            <script src="/resources/js/wordService.js"></script>
                             
-                            <!-- book_list 관련 자바스크립트 -->
-                            <script src="/resources/js/bookList.js"></script>
+                            <script>
+                            	//책 셀렉트 데이터 생성
+                            	bookService.getList(function(list) {
+                            		const len = (list.length - 1) || 0
+                            		
+                            		const bookSelect = document.querySelector("#bookSelect")
+                            		for (let i = len; i >= 0; i--) {
+                            			const option = document.createElement("option")
+                            			option.setAttribute("value", list[i].bookId)
+                            			option.textContent = list[i].bookName
+                            			if (i == len) {
+                            				option.setAttribute("selected", "selected")
+                            			}
+                            			bookSelect.appendChild(option)
+                            		}
+                            	})
+                            	
+                            	//카테고리 조회 버튼 클릭시 테이블에 해당하는 책의 카테고리 데이터 생성
+                            	const categoryListButton = document.querySelector("#categoryListButton")
+                            	categoryListButton.addEventListener("click", function() {
+                            		const bookSelect = document.querySelector("#bookSelect")
+                            		let child = null
+                            		while (bookSelect.hasChildNodes()) {
+                            			child = bookSelect.firstChild
+                            			if (child.getAttribute("selected") == "selected") {
+                            				break
+                            			}
+                            		}
+                            		
+                            		const bookId = child.getAttribute("value")
+                            		console.log("bookId = " + bookId)
+                            		
+                            		// bookId번에 해당하는 카테고리 리스트를 조회한다.
+                            		categoryService.getList(bookId, function(list) {
+                            			//리스트의 길이만큼 테이블에 카테고리를 추가한다.
+                            			const len = list.length || 0
+                            			for (let i = 0; i < len; i++) {
+	                            			const tbody = document.querySelector("tbody")
+	                            			const tr = document.createElement("tr")
+	
+	                            			const all = document.createElement("td")
+	                            			const checkbox = document.createElement("input")
+	                            			checkbox.setAttribute("type", "checkbox")
+	                            			all.appendChild(checkbox)
+	
+	                            			const categoryId = document.createElement("td")
+	                            			categoryId.textContent = list[i].categoryId
+	                            			
+	                            			const categoryName = document.createElement("td")
+	                            			categoryName.textContent = list[i].categoryName
+	                            			
+	                            			const regdate = document.createElement("td")
+	                            			regdate.textContent = list[i].regdate
+	                            			
+	                            			const updatedate = document.createElement("td")
+	                            			updatedate.textContent = list[i].updatedate
+	                            			
+	                            			const actions = document.createElement("td")
+	                            			actions.setAttribute("class", "text-center")
+	                            			
+	                            			const modifyButton = document.createElement("button")
+	                            			modifyButton.setAttribute("class", "btn text-dark p-0 modalEventButton")
+	                            			modifyButton.setAttribute("type", "button")
+	                            			modifyButton.setAttribute("data-toggle", "modal")
+	                            			modifyButton.setAttribute("data-target", "#modifyModal")
+	                            			const modifyButtonIcon = document.createElement("i")
+	                            			modifyButtonIcon.setAttribute("class", "fas fa-edit")
+	                            			
+	                            			modifyButton.appendChild(modifyButtonIcon)
+	                            			
+	                            			const removeButton = document.createElement("button")
+	                            			removeButton.setAttribute("class", "btn text-dark p-0 ml-2 modalEventButton")
+	                            			removeButton.setAttribute("type", "button")
+	                            			removeButton.setAttribute("data-toggle", "modal")
+	                            			removeButton.setAttribute("data-target", "#deleteModal")
+	                            			const removeButtonIcon = document.createElement("i")
+	                            			removeButtonIcon.setAttribute("class", "fas fa-trash-alt")
+	                            			
+	                            			removeButton.appendChild(removeButtonIcon)
+	                            			
+	                            			actions.appendChild(modifyButton)
+	                            			actions.appendChild(removeButton)
+	                            			
+	                            			const state = document.createElement("td")
+	                            			state.setAttribute("class", "text-center")
+	                            			
+	                            			const span = document.createElement("span")
+	                            			span.setAttribute("class", "badge badge-pill badge-info")
+	                            			span.textContent = "NEW"
+	                            			state.appendChild(span)
+	                            			
+	                            			tr.appendChild(all)
+	                            			tr.appendChild(categoryId)
+	                            			tr.appendChild(categoryName)
+	                            			tr.appendChild(regdate)
+	                            			tr.appendChild(updatedate)
+	                            			tr.appendChild(actions)
+	                            			tr.appendChild(state)
+	                            			
+	                            			tbody.appendChild(tr)
+                            			}
+                            		})
+                            	})
+                            	
+                            </script>
                             
 
-                            <!-- 추가, 수정, 삭제 완료 모달창 -->
-                            <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">상태</h5>
-                                            <button type="button" class="close" data-dismiss="modal">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p id="result"></p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button id="stateCheckButton" type="button" class="btn btn-secondary" data-dismiss="modal">확인</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- //추가, 수정, 삭제 완료 모달창 -->
-                            
-
-                            <!-- 폴더 수정하기 모달창 -->
+                            <!-- 카테고리 수정 모달창 -->
                             <div class="modal fade" id="modifyModal" tabindex="-1" aria-hidden="true">
-                                <form>
+                                <form action="" method="GET">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title">폴더 수정</h5>
+                                                <h5 class="modal-title">카테고리 수정</h5>
                                                 <button type="button" class="close" data-dismiss="modal">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label mt-2" for="modifyBookId">번호</label>
-                                                <input class="form-control" type="text" name="bookId" id="modifyBookId" value="1" readonly />
+                                                <label class="form-label" for="modify_folder_name">폴더</label>
+                                                <input type="text" class="form-control" name="folder_name" id="modify_folder_name" value="단어가 읽기다 기본편" readonly />
     
-                                                <label class="form-label mt-2" for="modifyBookName">폴더 이름</label>
-                                                <input class="form-control mb-4" type="text" name="bookName" id="modifyBookName" 
-                                                   onkeyup="print_result('modifyBookName', 'modify_result')" placeholder="단어가 읽기다 기본편" autocomplete="off" />
+                                                <label class="form-label mt-2" for="modify_cno">번호</label>
+                                                <input class="form-control" type="text" name="cno" id="modify_category_cno" value="5" readonly />
+    
+                                                <label class="form-label mt-2" for="modify_category_name">카테고리 이름</label>
+                                                <input class="form-control mb-4" type="text" name="category_name" id="modify_category_name" 
+                                                    onkeyup="print_result('modify_category_name', 'modify_result')"  placeholder="Unit 05 - 취미1" autocomplete="off" />
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -430,47 +524,46 @@
                                                 <div class="alert alert-info d-flex align-items-center" role="alert">
                                                     <svg class="bi flex-shrink-0 me-2 mr-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                                     <div>
-                                                      [ <span id="modify_result0">단어가 읽기다 기본편</span> ] → [ <span id="modify_result"></span> ]
+                                                      [ <span id="modify_result0">Unit 05 - 취미1</span> ] → [ <span id="modify_result"></span> ]
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                                                <button id="modifyButton" type="button" class="btn btn-primary">수정하기</button>
+                                                <button type="submit" class="btn btn-primary" >수정하기</button>
                                             </div>
                                         </div>
                                     </div>
                                 </form>
                             </div>
-                            <!-- ./폴더 수정하기 모달창 -->
+                            <!-- ./카테고리 수정 모달창 -->
 
-                            <!-- 폴더 삭제하기 모달창  -->
+                            <!-- 카테고리 삭제 모달창 -->
                             <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-                                <form>
+                                <form action="" method="POST">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title">폴더 삭제</h5>
+                                                <h5 class="modal-title">카테고리 삭제</h5>
                                                 <button type="button" class="close" data-dismiss="modal">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label mt-2" for="removeBookId">번호</label>
-                                                <input class="form-control" type="text" name="fno" id="removeBookId" value="1" readonly />
+                                                <label class="form-label" for="remove_folder_name">폴더</label>
+                                                <input type="text" class="form-control" name="folder_name" id="remove_folder_name" value="단어가 읽기다 기본편" readonly >
     
-                                                <label class="form-label mt-2" for="removeBookName">폴더명</label>
-                                                <input class="form-control" type="text" name="folder_name" id="removeBookName" value="단어가 읽기다 기본편" readonly />
-
-                                                <label class="form-label mt-2" for="categorySelect">소속된 카테고리</label>
-                                                <select class="custom-select" name="" id="categorySelect">
-                                                </select>
+                                                <label class="form-label mt-2" for="remove_category_cno">번호</label>
+                                                <input class="form-control" type="text" name="cno" id="remove_category_cno" value="5" readonly />
+    
+                                                <label class="form-label mt-2" for="remove_category_name">카테고리</label>
+                                                <input class="form-control" type="text" name="category_name" id="remove_category_name" value="Unit 05 - 취미1" readonly />
 
                                                 <label class="form-label mt-2" for="word_list">소속된 단어</label>
-                                                <select class="custom-select mb-4" name="" id="word_list" size="5">
-                                                	<c:forEach var="i" begin="1" end="20">
-	                                                    <option value="">단어: [ spice ] 뜻: [ 양념 ]</option>
-                                                	</c:forEach>
+                                                <select class="custom-select mb-4" name="" id="word_list">
+                                                    <option value="">spice, 양념</option>
+                                                    <option value="">delicous, 맛있는</option>
+                                                    <option value="">bake, (빵을)굽다</option>
                                                 </select>
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -488,37 +581,46 @@
                                                 <div class="alert alert-danger d-flex align-items-center" role="alert">
                                                     <svg class="bi flex-shrink-0 me-2 mr-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                                     <div>
-                                                      [ <span id="remove_result0">단어가 읽기다 - 기본편</span> ] 에 소속된 모든 카테고리와 단어들도 같이 삭제됩니다.
+                                                      [ <span id="remove_result0">Unit 05 - 취미1</span> ] 에 소속된 모든 단어들도 같이 삭제됩니다.
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            
     
                                             <div class="modal-footer">
-                                                <button id="removeCloseButton" type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                                                <button id="removeButton" type="button" class="btn btn-primary">삭제하기</button>
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
+                                                <button type="button" class="btn btn-primary">삭제하기</button>
                                             </div>
                                         </div>
                                     </div>
                                 </form>
-                            </div>
-                            <!-- ./폴더 삭제하기 모달창 -->
 
-                            <!-- 폴더 추가하기 모달창 -->
+                            </div>
+                            <!-- ./카테고리 삭제 모달창 -->
+
+                            <!-- 카테고리 추가 모달창 -->
                             <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-                                <form action="" method="POST">
+                                <form action="" method="GET">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title">폴더 추가</h5>
+                                                <h5 class="modal-title">카테고리 추가</h5>
                                                 <button type="button" class="close" data-dismiss="modal">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label mt-2" for="addBookName">폴더명</label>
-                                                <input class="form-control mb-4" type="text" name="bookName" id="addBookName" 
-                                                    onkeyup="print_result('add_book_name', 'add_result')" placeholder="추가할 폴더명을 입력해 주세요..." autocomplete="off" />
-                                            
+                                                <label class="form-label" for="add_folder_name">폴더</label>
+                                                <select class="custom-select" name="folder_name" id="add_folder_name">
+                                                    <option value="단어가 읽기다 - 기본편">단어가 읽기다 기본편</option>
+                                                    <option value="단어가 읽기다 - 실전편">단어가 읽기다 실전편</option>
+                                                </select>
+    
+                                                <label class="form-label mt-2" for="add_category_name">카테고리 이름</label>
+                                                <input class="form-control mb-4" type="text" name="category_name" id="add_category_name" 
+                                                    onkeyup="print_result('add_category_name', 'add_result')" placeholder="추가할 카테고리명을 입력해 주세요..." autocomplete="off" />
+
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
                                                       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
@@ -534,20 +636,19 @@
                                                 <div class="alert alert-info d-flex align-items-center" role="alert">
                                                     <svg class="bi flex-shrink-0 me-2 mr-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                                     <div>
-                                                      [ <span id="add_result"></span> ] 폴더가 추가됩니다.
+                                                      [ 단어가 읽기다 기본편 ] 폴더에 [ <span id="add_result"></span> ] 카테고리가 추가됩니다.
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                                                <button id="addButton" type="button" class="btn btn-primary">추가하기</button>
+                                                <button type="submit" class="btn btn-primary" >추가하기</button>
                                             </div>
                                         </div>
                                     </div>
                                 </form>
                             </div>
-                            <!-- ./폴더 추가하기 모달창 -->
-
+                            <!-- ./카테고리 추가 모달창 -->
 
                             <!-- 추가, 삭제, 수정 관련 모달 JQuery -->
                             <script>
@@ -586,7 +687,7 @@
                             <div class="row">
                                 <div class="col d-flex justify-content-end">
                                     <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#addModal">추가하기</button>
-                                    <button type="button" class="ml-2 btn btn-primary" onclick="alert('선택된 기능이 구현되지 않았습니다.')">선택된 폴더 삭제</button>
+                                    <button type="button" class="ml-2 btn btn-primary">선택된 아이템 삭제</button>
                                 </div>
                             </div>
 
@@ -594,7 +695,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- /.container-fluid -->
+                <!-- ./카테고리 관리 테이블 -->
 
             </div>
             <!-- End of Main Content -->
@@ -639,7 +740,33 @@
             </div>
         </div>
     </div>
+    <!-- 테이블 행 값을 모달로 전달하기  -->
+    <script>
+        $(".modalEventButton").on("click", function(){
+            var button = $(this);
 
+            var tr = button.parent().parent();
+            var td = tr.children();
+
+            console.log("CNO = " + td.eq(1).text());
+            console.log("CATEGORY_NAME = " + td.eq(2).text());
+
+            var cno = td.eq(1).text();
+            var category_name = td.eq(2).text();
+
+            //수정 창
+            document.getElementById("modify_category_cno").value = cno;
+            document.getElementById("modify_category_name").placeholder = category_name;
+            document.getElementById("modify_result0").innerText = category_name;
+
+            //삭제 창
+            document.getElementById("remove_category_cno").value = cno;
+            document.getElementById("remove_category_name").value = category_name;
+            document.getElementById("remove_result0").innerText = category_name;
+        });
+
+    </script>
+    
     <!-- Bootstrap core JavaScript-->
     <script src="/resources/vendor/jquery/jquery.min.js"></script>
     <script src="/resources/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
