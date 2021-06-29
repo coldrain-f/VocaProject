@@ -361,34 +361,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    
-                                    	<c:forEach var="book" items="${books }">
-	                                        <tr>
-	                                            <td><input type="checkbox"></td>
-	                                            <td><c:out value="${book.bookId }" /></td>
-	                                            <td><c:out value="${book.bookName }" /></td>
-	                                            <td><fmt:formatDate value="${book.regdate }" pattern="yyyy-MM-dd" /></td>
-	                                            <td><fmt:formatDate value="${book.updatedate }" pattern="yyyy-MM-dd" /></td>
-	                                            <td class="text-center">
-	                                                <button class="btn text-dark p-0 modalEventButton" type="button" data-toggle="modal" data-target="#modifyModal">
-	                                                    <i class="fas fa-edit"></i>
-	                                                </button>
-	                                                <button class="btn text-dark p-0 ml-1 modalEventButton" type="button" data-toggle="modal" data-target="#deleteModal">
-	                                                    <i class="fas fa-trash-alt"></i>
-	                                                </button>
-	                                            </td>
-	                                            <td class="text-center"><span class="badge badge-pill badge-info">NEW</span></td>
-	                                        </tr>
-                                    	</c:forEach>
                                     </tbody>
                                 </table>
                             </div>
                             
                             <script type="text/javascript">
-                            	/* 자바스크립트 모듈 패턴 */
+                            	//자바스크립트 모듈 패턴 
                             	console.log("BookService Module")
                             	//즉시 실행 함수
                             	var bookService = (function() {
+                            		//책 리스트
                             		function getList(callback, error) {
                             			
                             			$.getJSON("/books.json", function(list) {
@@ -397,27 +379,219 @@
                             				}
                             				
                             			}).fail(function(xhr, status, err) {
-                            				
+                            				if (error) {
+                            					error(err)
+                            				}
                             			})
                             			
                             		}
                             		
+                            		//책 추가하기
+                            		function add(bookVO, callback, error) {
+                            			$.ajax({
+                            				type: "post",
+                            				url: "/books/new",
+                            				data: JSON.stringify(bookVO),
+                            				contentType: "application/json; charset=utf-8",
+                            				success: function(result, status, xhr) {
+                            					if (callback) {
+                            						callback(result)
+                            					}
+                            				},
+                            				error: function(xhr, status, er) {
+                            					if (error) {
+                            						error(er)
+                            					}
+                            				}
+                            			})
+                            		}
+                            		
+                            		//책 삭제하기
+                            		function remove(bookId, callback, error) {
+                            			$.ajax({
+                            				type: "delete",
+                            				url: "/books/" + bookId,
+                            				success: function(result, status, xhr) {
+                            					if (callback) {
+                            						callback(result)
+                            					}
+                            				},
+                            				error: function(xhr, status, er) {
+                            					if (error) {
+                            						error(er)
+                            					}
+                            				}
+                            			})
+                            		}
+                            		
                            			return {
-                           				getList: getList
+                           				getList: getList,
+                           				add: add,
+                           				remove: remove
                            			}
                             	})()
                             	
-                            	bookService.getList(function(list) {
-                            		
-                            		//단어 책 리스트를 제대로 가져오는지 테스트
-                            		var len = list.length || 0
-                            		for (var i = 0; i < len; i++) {
-                            			console.log(list[i])
-                            		}
-                            		
-                            		// <tr>태그 만들어서 뿌려주는 로직을 작성해야 됨
-                            		
+                            	document.addEventListener("DOMContentLoaded", () => {
+	                            	bookService.getList(function(list) {
+	                            		
+	                            		//단어 책 리스트를 제대로 가져오는지 테스트
+	                            		const len = list.length || 0
+	                            		for (let i = 0; i < len; i++) {
+	                            			//console.log(list[i])
+	                            		}
+	                            		
+	                            		//<tr>태그 만들어서 뿌려주는 로직을 작성해야 됨
+	                            		for (let i = 0; i < len; i++) {
+	                            			const bookVO = {
+	                            					bookId: list[i].bookId,
+	                            					bookName: list[i].bookName,
+	                            					regdate: list[i].regdate,
+	                            					updatedate: list[i].updatedate
+	                            			}
+	                            			createTableData(bookVO)
+	                            		}
+	                            		
+	                            	})
+	                            	
+	                            	//추가 모달창에서 추가하기 버튼을 클릭하면 데이터 추가
+	                            	let addButton = document.querySelector("#addButton")
+	                            	addButton.addEventListener("click", function() {
+	                            		const bookName = document.querySelector("input[name='bookName']").value
+	                            		console.log("bookName = " + bookName)
+	                            		
+	                            		let bookVO = { bookName: bookName }
+	                            		bookService.add(bookVO, function() {
+	                            			$("#addModal").modal("hide")
+	                            			const result = document.querySelector("#result")
+	                            			result.textContent = "[ " + bookVO.bookName + " ]"+ "을/를 추가했습니다."
+	                            			$("#resultModal").modal("show")
+	                            		})
+	                            	})
+	                            	
+	                            	//상태 모달창에서 확인 버튼을 클릭하면 새로고침
+	                            	let stateCheckButton = document.querySelector("#stateCheckButton")
+	                            	stateCheckButton.addEventListener("click", function() {
+	                            		$("#resultModal").modal("hide")
+	                            		location.reload(true)
+	                            	})
+	                            	
+	                            	//삭제 모달창에서 삭제하기 버튼을 클릭하면 데이터 삭제
+	                            	let removeButton = document.querySelector("#removeButton")
+	                            	removeButton.addEventListener("click", function() {
+	                            		const bookName = document.querySelector("#removeBookName").value
+	                            		const bookId = document.querySelector("#removeBookId").value
+	                            		bookService.remove(bookId, function() {
+	                            			$("#deleteModal").modal("hide")
+	                            			const result = document.querySelector("#result")
+	                            			result.textContent =  "[ " + bookName + " ]" + "을/를 삭제했습니다."
+	                            			$("#resultModal").modal("show")
+	                            			
+	                            		})
+	                            	})
+	                            	
+	                            	function createTableData(bookVO) {
+	                            		//console.log("createTableData()")
+										let tbody = document.querySelector("tbody")
+										let tr = document.createElement("tr")
+	                            		
+										// <th>ALL</th>
+	                            		let all = document.createElement("td")
+	                            		let checkbox = document.createElement("input")
+	                            		checkbox.setAttribute("type", "checkbox")
+	                            		all.appendChild(checkbox)
+	                            		
+	                            		// <th><BOOK_ID></th>
+	                            		let bookId = document.createElement("td")
+	                            		bookId.textContent = bookVO.bookId
+	                            		
+	                            		// <th>BOOK_NAME</th>
+	                            		let bookName = document.createElement("td")
+	                            		bookName.textContent = bookVO.bookName
+	                            		
+	                            		// <th>REGDATE</th>
+	                            		let regdate = document.createElement("td")
+	                            		regdate.textContent = bookVO.regdate
+	                            		
+	                            		// <th>UPDATEDATE</th>
+	                            		let updatedate = document.createElement("td")
+	                            		updatedate.textContent = bookVO.updatedate
+	                            		
+	                            		// <th>ACTIONS</th>
+	                            		let actions = document.createElement("td")
+	                            		actions.setAttribute("class", "text-center")
+	                            		let modifyButton = document.createElement("button")
+	                            		modifyButton.setAttribute("class", "btn text-dark p-0 modalEventButton")
+	                            		modifyButton.setAttribute("type", "button")
+	                            		modifyButton.setAttribute("data-toggle", "modal")
+	                            		modifyButton.setAttribute("data-target", "#modifyModal")
+	                            		
+	                            		let modifyIcon = document.createElement("i")
+	                            		modifyIcon.setAttribute("class", "fas fa-edit")
+	
+	                            		modifyButton.appendChild(modifyIcon)
+	                            		actions.appendChild(modifyButton)
+	
+	                            		let removeButton = document.createElement("button")
+	                            		removeButton.setAttribute("class", "event btn text-dark p-0 ml-1 modalEventButton")
+	                            		removeButton.setAttribute("type", "button")
+	                            		removeButton.setAttribute("data-toggle", "modal")
+	                            		removeButton.setAttribute("data-target", "#deleteModal")
+	                            		
+	                            		let removeIcon = document.createElement("i")
+	                            		removeIcon.setAttribute("class", "fas fa-trash-alt")
+	                            		
+	                            		removeButton.appendChild(removeIcon)
+	                            		actions.appendChild(removeButton)
+	                            		
+	                            		// <th>STATE</th>
+	                            		let state = document.createElement("td")
+	                            		state.setAttribute("class", "text-center")
+	                            		let span = document.createElement("span")
+	                            		span.setAttribute("class"," badge badge-pill badge-info")
+	                            		span.textContent = "NEW"
+	                            		
+	                            		state.appendChild(span)
+	                            		
+	                            		// td 추가
+	                            		tr.appendChild(all)
+	                            		tr.appendChild(bookId)
+	                            		tr.appendChild(bookName)
+	                            		tr.appendChild(regdate)
+	                            		tr.appendChild(updatedate)
+	                            		tr.appendChild(actions)
+	                            		tr.appendChild(state)
+	                            		
+	                            		// tr 추가
+	                            		tbody.appendChild(tr)
+	                            	}
+	                            	
+	                            	//클릭한 행의 테이블 데이터 가져오기
+	                            	$(document).on("click", ".modalEventButton", function() {
+	                            		console.log("이벤트 버튼...........")
+	                            		const button = $(this)
+	        							
+							            const tr = button.parent().parent()
+							            const td = tr.children()
+							
+							            //console.log("FNO = " + td.eq(1).text())
+							            //console.log("FOLDER_NAME = " + td.eq(2).text())
+							
+							            const bookId = td.eq(1).text()
+							            const bookName = td.eq(2).text()
+							
+							            //수정 창
+							            document.getElementById("modify_folder_fno").value = bookId
+							            document.getElementById("modify_folder_name").placeholder = bookName
+							            document.getElementById("modify_result0").innerText = bookName
+							
+							            //삭제 창
+							            document.getElementById("removeBookId").value = bookId
+							            document.getElementById("removeBookName").value = bookName
+							            document.getElementById("remove_result0").innerText = bookName
+	                            	})  	
                             	})
+                            	
+                            	
                             	
                             </script>
                             
@@ -436,18 +610,11 @@
                                             <p id="result"></p>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">확인</button>
+                                            <button id="stateCheckButton" type="button" class="btn btn-secondary" data-dismiss="modal">확인</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <script>
-                                var state = "[ 20 ]번 폴더의 추가가 완료되었습니다.";
-                                var result = document.getElementById("result").innerText = state;
-
-                                
-                            </script>
                             <!-- //추가, 수정, 삭제 완료 모달창 -->
                             
 
@@ -501,7 +668,7 @@
 
                             <!-- 폴더 삭제하기 모달창  -->
                             <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-                                <form action="" method="POST">
+                                <form>
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -511,11 +678,11 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label mt-2" for="remove_folder_fno">번호</label>
-                                                <input class="form-control" type="text" name="fno" id="remove_folder_fno" value="1" readonly />
+                                                <label class="form-label mt-2" for="removeBookId">번호</label>
+                                                <input class="form-control" type="text" name="fno" id="removeBookId" value="1" readonly />
     
-                                                <label class="form-label mt-2" for="remove_folder_name">폴더명</label>
-                                                <input class="form-control" type="text" name="folder_name" id="remove_folder_name" value="단어가 읽기다 기본편" readonly />
+                                                <label class="form-label mt-2" for="removeBookName">폴더명</label>
+                                                <input class="form-control" type="text" name="folder_name" id="removeBookName" value="단어가 읽기다 기본편" readonly />
 
                                                 <label class="form-label mt-2" for="category_list">소속된 카테고리</label>
                                                 <select class="custom-select" name="" id="category_list">
@@ -555,7 +722,7 @@
     
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                                                <button type="submit" class="btn btn-primary">삭제하기</button>
+                                                <button id="removeButton" type="button" class="btn btn-primary">삭제하기</button>
                                             </div>
                                         </div>
                                     </div>
@@ -575,9 +742,9 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label mt-2" for="add_folder_name">폴더명</label>
-                                                <input class="form-control mb-4" type="text" name="folder_name" id="add_folder_name" 
-                                                    onkeyup="print_result('add_folder_name', 'add_result')" placeholder="추가할 폴더명을 입력해 주세요..." autocomplete="off" />
+                                                <label class="form-label mt-2" for="add_book_name">폴더명</label>
+                                                <input class="form-control mb-4" type="text" name="bookName" id="add_book_name" 
+                                                    onkeyup="print_result('add_book_name', 'add_result')" placeholder="추가할 폴더명을 입력해 주세요..." autocomplete="off" />
                                             
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -600,7 +767,7 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                                                <button type="submit" class="btn btn-primary">추가하기</button>
+                                                <button id="addButton" type="button" class="btn btn-primary">추가하기</button>
                                             </div>
                                         </div>
                                     </div>
@@ -700,33 +867,6 @@
             </div>
         </div>
     </div>
-
-    <!-- 테이블 행 값을 모달로 전달하기  -->
-    <script>
-        $(".modalEventButton").on("click", function(){
-            var button = $(this);
-
-            var tr = button.parent().parent();
-            var td = tr.children();
-
-            console.log("FNO = " + td.eq(1).text());
-            console.log("FOLDER_NAME = " + td.eq(2).text());
-
-            var fno = td.eq(1).text();
-            var folder_name = td.eq(2).text();
-
-            //수정 창
-            document.getElementById("modify_folder_fno").value = fno;
-            document.getElementById("modify_folder_name").placeholder = folder_name;
-            document.getElementById("modify_result0").innerText = folder_name;
-
-            //삭제 창
-            document.getElementById("remove_folder_fno").value = fno;
-            document.getElementById("remove_folder_name").value = folder_name;
-            document.getElementById("remove_result0").innerText = folder_name;
-        });
-
-    </script>
 
     <!-- Bootstrap core JavaScript-->
     <script src="/resources/vendor/jquery/jquery.min.js"></script>
