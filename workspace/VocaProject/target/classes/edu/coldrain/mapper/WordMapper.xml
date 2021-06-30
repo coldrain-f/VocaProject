@@ -27,7 +27,8 @@
 	<update id="update">
 		UPDATE TBL_WORD SET
 		WORD_NAME = #{wordName},
-		WORD_MEANING = #{wordMeaning}
+		WORD_MEANING = #{wordMeaning},
+		UPDATEDATE = SYSDATE
 		WHERE WORD_ID = #{wordId}
 	</update>
 	

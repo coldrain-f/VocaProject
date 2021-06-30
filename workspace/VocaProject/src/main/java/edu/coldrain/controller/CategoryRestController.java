@@ -21,7 +21,7 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 @RestController
 @RequiredArgsConstructor
-public class CategoryController {
+public class CategoryRestController {
 
 	private final CategoryService service;
 	

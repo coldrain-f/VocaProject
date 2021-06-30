@@ -54,6 +54,20 @@ function remove(bookId, callback, error) {
     })
 }
 
+//특정 책 가져오기
+function get(bookId, callback, error) {
+    console.log("get 호출")
+    $.get("/books/" + bookId + ".json", function(bookVO) {
+        if (callback) {
+            callback(bookVO)
+        }
+    }).fail(function(xhr, status, err) {
+        if (error) {
+            error(err)
+        }
+    })
+}
+
 //책 수정하기
 function modify(bookVO, callback, error) {
     $.ajax({
@@ -73,6 +87,7 @@ function modify(bookVO, callback, error) {
         }
     })
 }
+
 
 return {
     getList: getList,

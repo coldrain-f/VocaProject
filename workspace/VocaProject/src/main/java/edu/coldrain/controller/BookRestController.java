@@ -23,7 +23,7 @@ import lombok.extern.log4j.Log4j;
 @RestController
 @RequestMapping("/books")
 @RequiredArgsConstructor
-public class BookController {
+public class BookRestController {
 	
 	private final BookService service;
 	

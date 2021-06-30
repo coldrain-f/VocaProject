@@ -13,8 +13,20 @@ let categoryService = (function() {
             }
         })
     }
+
+    //특정 카테고리 조회
+    function get(categoryId, callback, error) {
+        console.log("특정 카테고리 조회 호출")
+
+    }
+
+    function add() {
+        console.log("add 함수 호출")
+    }
     
     return {
-        getList: getList
+        getList: getList,
+        get: get,
+        add: add
     }
 })()
