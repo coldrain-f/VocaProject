@@ -366,8 +366,8 @@
                             </div>
                             
                             <!-- Ajax 모듈 -->
-                            <script src="/resources/js/bookService.js"></script>
-                            <script src="/resources/js/categoryService.js"></script>
+                            <script src="/resources/js/bookService_old.js"></script>
+                            <script src="/resources/js/category-service.js"></script>
                             <script src="/resources/js/wordService.js"></script>
                             
                             <!-- book_list 관련 자바스크립트 -->

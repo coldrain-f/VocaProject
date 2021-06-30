@@ -71,4 +71,19 @@ public class WordController {
 		return "redirect:/admin/word/list?bookId=" + bookId + "&categoryId=" + categoryId;
 	}
 	
+	@PostMapping("/register")
+	public String register(WordVO wordVO, Long bookId, Long categoryId) {
+		log.info("WordController.register()");
+		
+		log.info(wordVO);
+		log.info("bookId = " + bookId);
+		log.info("categoryId = " + categoryId);
+		
+		
+		
+		service.register(wordVO);
+		
+		return "redirect:/admin/word/list?bookId=" + bookId + "&categoryId=" + categoryId;
+	}
+	
 }

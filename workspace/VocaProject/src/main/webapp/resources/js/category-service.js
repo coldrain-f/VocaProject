@@ -17,16 +17,19 @@ let categoryService = (function() {
     //특정 카테고리 조회
     function get(categoryId, callback, error) {
         console.log("특정 카테고리 조회 호출")
+        $.get("/categories/" + categoryId + ".json", function(categoryVO) {
+            if (callback) {
+                callback(categoryVO)
+            }
+        }).fail(function(xhr, status, err) {
+            if (error) {
+                error(err)
+            }
+        })
 
     }
-
-    function add() {
-        console.log("add 함수 호출")
-    }
-    
     return {
         getList: getList,
-        get: get,
-        add: add
+        get: get
     }
 })()

@@ -334,34 +334,14 @@
                         </div>
                         
                         <!-- 자바스크립트 모듈 -->
-                        <script src="/resources/js/categoryService.js"></script>
+                        <script src="/resources/js/category-service.js"></script>
                         <script src="/resources/js/book-service.js"></script>
-                        
-                        <script>
-                        	$(document).ready(function() {
-                        		//변수명이랑 외부 자바스크립트 명이랑 똑같이 하면 안 되나?..
-                        		console.log("문서가 로딩되었습니다.")
-                        		
-                        		bookService.get(5, function(bookVO) {
-                        			console.log("get -----------")
-                        			console.log(bookVO.bookId = " " + bookVO.bookName)
-                        		})
-                        		
-                        		bookService.getList(function(books) {
-                        			console.log("getList ---------")
-                        			for (const book of books) {
-                        				console.log(book.bookId + " " + book.bookName)
-                        			}
-                        		})
-                        		
-                        	})
-                        </script>
                         
                         <script>
                         	$(document).ready(function() {
 		                        const bookId = "<c:out value='${bookId}' />"
 		                    	const categoryId = "<c:out value='${categoryId}' />"
-		                    	 
+		                    	
 		                    	//단어 조회 버튼을 클릭하지 않았을 경우 처리 ( list 페이지 최초 접속 )
 		                    	if (bookId === "" && categoryId === "") {
 		                    		//책 셀렉트 박스 초기화 설정
@@ -390,7 +370,7 @@
 				                    		for (const book of books) {
 				                    			const bookOption = $("<option value='" + book.bookId + "'>" + book.bookName + "</option>")
 				                    			$("#bookSelect").append(bookOption)
-				                    		}
+				                    		} 
 				                    		//조회된 책이 선택되어야 한다.
 				                    		$("#bookSelect option[value='" + bookId + "']").attr("selected", true)
 				                    	})
@@ -430,14 +410,9 @@
 								    })
 								})
 								
-								function print_result(inputElementId, targetElementId) {
-                                    const val = document.getElementById(inputElementId).value;
-                                    const result = document.getElementById(targetElementId).innerText = val;
-                                }
-								
-								
 								//테이블 행 값 가져오기
 								$(".modalEventButton").on("click", function() {
+									console.log("추가하기 버튼을 클릭했습니다.")
 						            const button = $(this)
 
 						            const tr = button.parent().parent()
@@ -449,7 +424,21 @@
 
 						           	console.log("bookId = " + bookId)
 						           	console.log("categoryId = " + categoryId)
-						            //bookId랑 categoryId를 이용해서 bookName과 categoryName을 가지고 온다.
+						           	
+						            if (bookId !== "" && categoryId !== "") {
+							            bookService.get(bookId, function(bookVO) {
+							            	$("#modifyBookName").val(bookVO.bookName)
+							            	$("#removeBookName").val(bookVO.bookName)
+							            	$("#addBookName").val(bookVO.bookName)
+							            })
+							            
+							            categoryService.get(categoryId, function(categoryVO) {
+							            	$("#modifyCategoryName").val(categoryVO.categoryName)
+							            	$("#removeCategoryName").val(categoryVO.categoryName)
+							            	$("#addCategoryName").val(categoryVO.categoryName)
+							            })
+						            }
+						            
 						            
 						            $("#modifyWordId").val(wordId)
 						           	$("#modifyWordName").attr("placeholder", wordName)
@@ -457,14 +446,16 @@
 						           	
 						           	$("#modifyBookId").val(bookId)
 						           	$("#modifyCategoryId").val(categoryId)
-						           	
-						           	//이어서 제작해야됨
+
 						           	$("#removeWordId").val(wordId)
 						           	$("#removeWordName").val(wordName)
 						           	$("#removeWordMeaning").val(wordMeaning)
 						           	
 						           	$("#removeBookId").val(bookId)
 						           	$("#removeCategoryId").val(categoryId)
+						           	
+						           	$("#addBookId").val(bookId)
+						           	$("#addCategoryId").val(categoryId)
 						            
 						            document.getElementById("modify_result0").innerText = wordName;
 						            document.getElementById("modify_result2").innerText = wordMeaning;
@@ -573,10 +564,10 @@
                                                 <input class="form-control" type="text" name="wordId" id="modifyWordId" value="1" readonly />
     
                                                 <label class="form-label mt-2" for="modifyWordName">단어</label>
-                                                <input class="form-control" type="text" name="wordName" id="modifyWordName" onkeyup="print_result('modifyWordName', 'modify_result1')" placeholder="spice" autocomplete="off" />
+                                                <input class="form-control" type="text" name="wordName" id="modifyWordName" onkeyup="printResult('modifyWordName', 'modify_result1')" placeholder="spice" autocomplete="off" />
     
                                                 <label class="form-label mt-2" for="modifyWordMeaning">뜻</label>
-                                                <input class="form-control mb-4" type="text" name="wordMeaning" id="modifyWordMeaning" onkeyup="print_result('modifyWordMeaning', 'modify_result3')" placeholder="양념" autocomplete="off" />
+                                                <input class="form-control mb-4" type="text" name="wordMeaning" id="modifyWordMeaning" onkeyup="printResult('modifyWordMeaning', 'modify_result3')" placeholder="양념" autocomplete="off" />
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -657,7 +648,7 @@
 
                             <!-- 단어 추가 모달창 -->
                             <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-                                <form action="" method="post">
+                                <form action="/admin/word/register" method="post">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -667,28 +658,22 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label" for="add_folder_name">폴더</label>
-                                                <select class="custom-select" name="folder_name" id="add_folder_name">
-                                                    <option value="단어가 읽기다 - 기본편">단어가 읽기다 기본편</option>
-                                                    <option value="단어가 읽기다 - 실전편">단어가 읽기다 실전편</option>
-                                                </select>
+                                                <label class="form-label" for="addBookName">폴더</label>     
+                                                <input type="text" class="form-control" name="bookName" id="addBookName" readonly />
     
-                                                <label class="form-label mt-2" for="add_category_name">카테고리 이름</label>
-                                                <select class="custom-select" name="category_name" id="add_category_name">
-                                                    <option value="Unit 01 - 요리">Unit 01 - 요리</option>
-                                                    <option value="Unit 02 - 일상1">Unit 02 - 일상1</option>
-                                                    <option value="Unit 03 - 일상2">Unit 03 - 일상2</option>
-                                                    <option value="Unit 04 - 신체">Unit 04 - 신체</option>
-                                                    <option value="Unit 05 - 취미1">Unit 05 - 취미1</option>
-                                                </select>
+                                                <label class="form-label mt-2" for="addCategoryName">카테고리 이름</label>
+                                                <input type="text" class="form-control" name="categoryName" id="addCategoryName" readonly />
+                                                
+                                                <input type="hidden" name="bookId" id="addBookId" value="" />
+    										    <input type="hidden" name="categoryId" id="addCategoryId" value="" />
 
-                                                <label class="form-label mt-2" for="add_word_name">단어</label>
-                                                <input type="text" class="form-control" name="word_name" id="add_word_name" autocomplete="off"
-                                                    onkeyup="print_result('add_word_name', 'add_result1')" placeholder="추가할 단어를 입력해 주세요..." />
+                                                <label class="form-label mt-2" for="addWordName">단어</label>
+                                                <input type="text" class="form-control" name="wordName" id="addWordName" autocomplete="off"
+                                                    onkeyup="printResult('addWordName', 'add_result1')" placeholder="추가할 단어를 입력해 주세요..." />
 
-                                                <label class="form-label mt-2" for="add_word_meaning">뜻</label>
-                                                <input type="text" class="form-control mb-4" name="word_meaning" id="add_word_meaning" autocomplete="off"
-                                                    onkeyup="print_result('add_word_meaning', 'add_result2')" placeholder="추가할 단어의 뜻을 입력해 주세요..." />
+                                                <label class="form-label mt-2" for="addWordMeaning">뜻</label>
+                                                <input type="text" class="form-control mb-4" name="wordMeaning" id="addWordMeaning" autocomplete="off"
+                                                    onkeyup="printResult('addWordMeaning', 'add_result2')" placeholder="추가할 단어의 뜻을 입력해 주세요..." />
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -746,7 +731,7 @@
 
                             <div class="row">
                                 <div class="col d-flex justify-content-end">
-                                    <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#addModal">추가하기</button>
+                                    <button class="btn btn-primary modalEventButton" type="button" data-toggle="modal" data-target="#addModal">추가하기</button>
                                     <button type="button" class="ml-2 btn btn-primary">선택된 아이템 삭제</button>
                                 </div>
                             </div>
@@ -800,6 +785,13 @@
             </div>
         </div>
     </div>
+    
+    <script type="text/javascript">
+	    function printResult(inputElementId, targetElementId) {
+	        const val = document.getElementById(inputElementId).value;
+	        const result = document.getElementById(targetElementId).innerText = val;
+	    }
+    </script>
 
 
     <!-- Bootstrap core JavaScript-->

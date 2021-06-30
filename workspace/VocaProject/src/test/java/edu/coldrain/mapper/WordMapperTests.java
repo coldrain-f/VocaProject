@@ -65,4 +65,5 @@ public class WordMapperTests {
 		List<WordVO> list = mapper.readListByCategoryId(23L);
 		list.forEach(word -> log.info(word));
 	}
+	
 }
