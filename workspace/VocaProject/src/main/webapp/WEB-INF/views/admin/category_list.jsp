@@ -1,330 +1,34 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html lang="ko">
-
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title>CATEGORY CRUD</title>
-
-    <!-- Custom fonts for this template-->
-    <link href="/resources/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-
-    <!-- Custom styles for this template-->
-    <link href="/resources/css/sb-admin-2.min.css" rel="stylesheet">
-
-    <!-- JQuery import -->
-    <script src="https://code.jquery.com/jquery-2.2.1.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300&display=swap');
-        .card { font-family: 'Noto Sans KR', sans-serif; }
-    </style>
-
-</head>
-
-<body id="page-top">
-
-    <!-- Page Wrapper -->
-    <div id="wrapper">
-
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">coldrain</div>
-            </a>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0">
-
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
-                <a class="nav-link" href="index.html">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                학습 관리
-            </div>
-
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="/folder_list.html">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>폴더 관리</span></a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="/category_list.html">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>카테고리 관리</span></a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="/word_list.html">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>단어 관리</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-
-        </ul>
-        <!-- End of Sidebar -->
-
-        <!-- Content Wrapper -->
-        <div id="content-wrapper" class="d-flex flex-column">
-
-            <!-- Main Content -->
-            <div id="content">
-
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-                    <!-- Sidebar Toggle (Topbar) -->
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="fa fa-bars"></i>
-                    </button>
-
-                    <!-- Topbar Search -->
-                    <form
-                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                                aria-label="Search" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <!-- Topbar Navbar -->
-                    <ul class="navbar-nav ml-auto">
-
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-search fa-fw"></i>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                                aria-labelledby="searchDropdown">
-                                <form class="form-inline mr-auto w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Search for..." aria-label="Search"
-                                            aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </li>
-
-                        <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
-                            </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Alerts Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
-                            </div>
-                        </li>
-
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Message Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="/resources/img/undraw_profile_1.svg"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="/resources/img/undraw_profile_2.svg"
-                                            alt="...">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">I have the photos that you ordered last month, how
-                                            would you like them sent to you?</div>
-                                        <div class="small text-gray-500">Jae Chun · 1d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="/resources/img/undraw_profile_3.svg"
-                                            alt="...">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Last month's report looks great, I am very happy with
-                                            the progress so far, keep up the good work!</div>
-                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                            told me that people say this to all dogs, even if they aren't good...</div>
-                                        <div class="small text-gray-500">Chicken the Dog · 2w</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
-                            </div>
-                        </li>
-
-                        <div class="topbar-divider d-none d-sm-block"></div>
-
-                        <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle"
-                                    src="/resources/img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
-                            </div>
-                        </li>
-
-                    </ul>
-
-                </nav>
-                <!-- End of Topbar -->
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ include file="includes/header.jsp" %>
 
                 <!-- 카테고리 관리 테이블 -->
                 <div class="container-fluid">
                     <div class="card shadow">
                         <div class="card-header">
                             <!-- 카테고리 조회 폼 -->
-                            <form action="" method="GET">
+                            <form action="/admin/category/list" method="get">
                                 <div class="row mb-4 pl-2 pr-2">
-                                    <label for="bookSelect" class="form-label">폴더</label>
-                                    <select class="custom-select" name="folder_name" id="bookSelect"></select>
+                                    <label for="bookSelect" class="form-label">책</label>
+                                    <select class="custom-select" name="bookId" id="bookSelect">
+                                    	<c:forEach var="book" items="${books }">
+                                    		<option value="<c:out value="${book.bookId }"/>" ${book.bookId eq bookId ? 'selected' : '' }>
+                                    			<c:out value="${book.bookName }" />
+                                    		</option>
+                                    	</c:forEach>
+                                    </select>
                                 </div>
     
                                 <div class="row d-flex justify-content-end mr-0">
-                                    <button id="categoryListButton" type="button" class="btn btn-info">카테고리 조회</button>
+                                    <button type="submit" class="btn btn-info">카테고리 조회</button>
                                 </div>
                             </form>
                             <!-- 카테고리 조회 폼 -->
                         </div>
                         <div class="card-body">
-                            <form class="form-inline" action="" method="">
+                            <form class="form-inline" action="">
                                 <select class="custom-select custom-select-sm mt-1" name="" id="">
                                     <option value="5">5</option>
                                     <option value="10" selected>10</option>
@@ -369,127 +73,112 @@
                                             <th class="text-center">STATE</th>
                                         </tr>
                                     </thead>
-                                    <tbody></tbody>
+                                    <tbody>
+                                    	<c:forEach var="category" items="${categories }">
+                                    		<tr>
+	                                            <td><input type="checkbox"></td>
+	                                            <td><c:out value="${category.categoryId }" /></td>
+	                                            <td><c:out value="${category.categoryName }" /></td>
+	                                            <td><fmt:formatDate value="${category.regdate }" pattern="yyyy-MM-dd" /></td>	
+	                                            <td><fmt:formatDate value="${category.updatedate }" pattern="yyyy-MM-dd" /></td>
+	                                            <td class="text-center">
+	                                                <button class="btn text-dark p-0 modalEventButton" type="button" data-toggle="modal" data-target="#modifyModal">
+	                                                    <i class="fas fa-edit"></i>
+	                                                </button>
+	                                                <button class="btn text-dark p-0 ml-1 modalEventButton" type="button" data-toggle="modal" data-target="#deleteModal">
+	                                                    <i class="fas fa-trash-alt"></i>
+	                                                </button>
+	                                                
+	                                            </td>
+	                                            <td class="text-center"><span class="badge badge-pill badge-info">NEW</span></td>
+	                                        </tr>
+                                    	</c:forEach>
+                                    </tbody>
                                 </table>
                             </div>
                             <!-- ./테이블 데이터 -->
                             
-                            <!-- 책 서비스 모듈 -->
-                            <script src="/resources/js/bookService.js"></script>
-                            
-                            <!-- 카테고리 서비스 모듈 -->
-                            <script src="/resources/js/categoryService.js"></script>
+                            <!-- 자바스크립트 모듈 -->
+                            <script src="/resources/js/book-service.js"></script>
+                            <script src="/resources/js/category-service.js"></script>
+                            <script src="/resources/js/word-service.js"></script>
                             
                             <script>
-                            	//책 셀렉트 데이터 생성
-                            	bookService.getList(function(list) {
-                            		const len = (list.length - 1) || 0
+                            	$(document).ready(function () {
+                            		const bookId = "<c:out value='${bookId }' />"
+                            		const result = "<c:out value='${result }' />"
                             		
-                            		const bookSelect = document.querySelector("#bookSelect")
-                            		for (let i = len; i >= 0; i--) {
-                            			const option = document.createElement("option")
-                            			option.setAttribute("value", list[i].bookId)
-                            			option.textContent = list[i].bookName
-                            			if (i == len) {
-                            				option.setAttribute("selected", "selected")
-                            			}
-                            			bookSelect.appendChild(option)
-                            		}
-                            	})
-                            	
-                            	//카테고리 조회 버튼 클릭시 테이블에 해당하는 책의 카테고리 데이터 생성
-                            	const categoryListButton = document.querySelector("#categoryListButton")
-                            	categoryListButton.addEventListener("click", function() {
-                            		const bookSelect = document.querySelector("#bookSelect")
-                            		let child = null
-                            		while (bookSelect.hasChildNodes()) {
-                            			child = bookSelect.firstChild
-                            			if (child.getAttribute("selected") == "selected") {
-                            				break
-                            			}
+                            		if (result === "REGISTER SUCCESS") {
+                            			$("#result").text("카테고리 등록을 완료했습니다.")
+                            		} else if (result === "MODIFY SUCCESS") {
+                            			$("#result").text("카테고리 수정을 완료했습니다.")
+                            		} else if (result === "REMOVE SUCCESS") {
+                            			$("#result").text("카테고리 삭제를 완료했습니다.")
                             		}
                             		
-                            		const bookId = child.getAttribute("value")
-                            		console.log("bookId = " + bookId)
+                            		if (result !== "") {
+                            			$("#resultModal").modal("show")
+                            		}
                             		
-                            		// bookId번에 해당하는 카테고리 리스트를 조회한다.
-                            		categoryService.getList(bookId, function(list) {
-                            			//리스트의 길이만큼 테이블에 카테고리를 추가한다.
-                            			const len = list.length || 0
-                            			for (let i = 0; i < len; i++) {
-	                            			const tbody = document.querySelector("tbody")
-	                            			const tr = document.createElement("tr")
-	
-	                            			const all = document.createElement("td")
-	                            			const checkbox = document.createElement("input")
-	                            			checkbox.setAttribute("type", "checkbox")
-	                            			all.appendChild(checkbox)
-	
-	                            			const categoryId = document.createElement("td")
-	                            			categoryId.textContent = list[i].categoryId
-	                            			
-	                            			const categoryName = document.createElement("td")
-	                            			categoryName.textContent = list[i].categoryName
-	                            			
-	                            			const regdate = document.createElement("td")
-	                            			regdate.textContent = list[i].regdate
-	                            			
-	                            			const updatedate = document.createElement("td")
-	                            			updatedate.textContent = list[i].updatedate
-	                            			
-	                            			const actions = document.createElement("td")
-	                            			actions.setAttribute("class", "text-center")
-	                            			
-	                            			const modifyButton = document.createElement("button")
-	                            			modifyButton.setAttribute("class", "btn text-dark p-0 modalEventButton")
-	                            			modifyButton.setAttribute("type", "button")
-	                            			modifyButton.setAttribute("data-toggle", "modal")
-	                            			modifyButton.setAttribute("data-target", "#modifyModal")
-	                            			const modifyButtonIcon = document.createElement("i")
-	                            			modifyButtonIcon.setAttribute("class", "fas fa-edit")
-	                            			
-	                            			modifyButton.appendChild(modifyButtonIcon)
-	                            			
-	                            			const removeButton = document.createElement("button")
-	                            			removeButton.setAttribute("class", "btn text-dark p-0 ml-2 modalEventButton")
-	                            			removeButton.setAttribute("type", "button")
-	                            			removeButton.setAttribute("data-toggle", "modal")
-	                            			removeButton.setAttribute("data-target", "#deleteModal")
-	                            			const removeButtonIcon = document.createElement("i")
-	                            			removeButtonIcon.setAttribute("class", "fas fa-trash-alt")
-	                            			
-	                            			removeButton.appendChild(removeButtonIcon)
-	                            			
-	                            			actions.appendChild(modifyButton)
-	                            			actions.appendChild(removeButton)
-	                            			
-	                            			const state = document.createElement("td")
-	                            			state.setAttribute("class", "text-center")
-	                            			
-	                            			const span = document.createElement("span")
-	                            			span.setAttribute("class", "badge badge-pill badge-info")
-	                            			span.textContent = "NEW"
-	                            			state.appendChild(span)
-	                            			
-	                            			tr.appendChild(all)
-	                            			tr.appendChild(categoryId)
-	                            			tr.appendChild(categoryName)
-	                            			tr.appendChild(regdate)
-	                            			tr.appendChild(updatedate)
-	                            			tr.appendChild(actions)
-	                            			tr.appendChild(state)
-	                            			
-	                            			tbody.appendChild(tr)
-                            			}
-                            		})
+                            		//테이블의 행 값을 가져오기
+		                            $(".modalEventButton").on("click", function(){
+							            const button = $(this)
+							
+							            const tr = button.parent().parent()
+							            const td = tr.children()
+							
+							            const categoryId = td.eq(1).text();
+							            const categoryName = td.eq(2).text()
+							            
+							            if (bookId !== "") {
+								            bookService.get(bookId, function(bookVO) {
+								            	$("#modifyBookName").val(bookVO.bookName)
+								            	$("#removeBookName").val(bookVO.bookName)
+								            	$("#addBookName").val(bookVO.bookName)
+								            	$("#addBookNameInfo").text(bookVO.bookName)
+								            	$("#addBookId").val(bookVO.bookId)
+								            	$("#modifyBookId").val(bookVO.bookId)
+								            	$("#removeBookId").val(bookVO.bookId)
+								            })							            	
+							            }
+							            
+							            //카테고리 아이디에 소속된 모든 단어를 조회한다.
+							            if (categoryId !== "") { //추가하기 버튼은 카테고리 아이디가 없다.
+								            wordService.getList(categoryId, function(words) {
+							            		//기존의 삭제 셀렉트 박스에 있는 데이터 초기화
+							            		$("#removeWordSelect").empty()
+							            		let optionEmpty = true
+								            	for (const word of words) {
+								            		//삭제 셀렉트 박스에 소속된 단어 추가
+								            		const option = $("<option>" + word.wordName + " / " + word.wordMeaning + "</option>")
+								            		$("#removeWordSelect").append(option)
+								            		optionEmpty = false
+								            	}
+							            		
+							            		//소속된 단어가 하나도 없다면
+							            		if (optionEmpty) {
+							            			const option = $("<option>소속된 단어가 존재하지 않습니다.</option>")
+							            			$("#removeWordSelect").append(option)
+							            		}
+								            })
+							            }
+							            
+							            $("#modifyCategoryId").val(categoryId)
+							            $("#modifyCategoryName").attr("placeholder", categoryName)
+							            $("#modifyCategoryNameInfo").text(categoryName)
+							            
+							            $("#removeCategoryId").val(categoryId)
+							            $("#removeCategoryName").val(categoryName)
+							            $("#removeCategoryNameInfo").text(categoryName)
+							        })
                             	})
-                            	
+                            
                             </script>
                             
 
                             <!-- 카테고리 수정 모달창 -->
                             <div class="modal fade" id="modifyModal" tabindex="-1" aria-hidden="true">
-                                <form action="" method="GET">
+                                <form action="/admin/category/modify" method="post">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -499,15 +188,17 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label" for="modify_folder_name">폴더</label>
-                                                <input type="text" class="form-control" name="folder_name" id="modify_folder_name" value="단어가 읽기다 기본편" readonly />
+                                                <label class="form-label" for="modifyBookName">책 이름</label>
+                                                <input type="text" class="form-control" name="bookName" id="modifyBookName" readonly />
+                                                
+                                                <input type="hidden" name="bookId" id="modifyBookId" />
     
-                                                <label class="form-label mt-2" for="modify_cno">번호</label>
-                                                <input class="form-control" type="text" name="cno" id="modify_category_cno" value="5" readonly />
+                                                <label class="form-label mt-2" for="modifyCategoryId">카테고리 번호</label>
+                                                <input class="form-control" type="text" name="categoryId" id="modifyCategoryId" readonly />
     
-                                                <label class="form-label mt-2" for="modify_category_name">카테고리 이름</label>
-                                                <input class="form-control mb-4" type="text" name="category_name" id="modify_category_name" 
-                                                    onkeyup="print_result('modify_category_name', 'modify_result')"  placeholder="Unit 05 - 취미1" autocomplete="off" />
+                                                <label class="form-label mt-2" for="modifyCategoryName">카테고리 이름</label>
+                                                <input class="form-control mb-4" type="text" name="categoryName" id="modifyCategoryName" 
+                                                    onkeyup="printResult('modifyCategoryName', 'modifyCategoryNameResult')" autocomplete="off" />
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -524,7 +215,7 @@
                                                 <div class="alert alert-info d-flex align-items-center" role="alert">
                                                     <svg class="bi flex-shrink-0 me-2 mr-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                                     <div>
-                                                      [ <span id="modify_result0">Unit 05 - 취미1</span> ] → [ <span id="modify_result"></span> ]
+                                                      [ <span id="modifyCategoryNameInfo"></span> ] → [ <span id="modifyCategoryNameResult"></span> ]
                                                     </div>
                                                 </div>
                                             </div>
@@ -540,7 +231,7 @@
 
                             <!-- 카테고리 삭제 모달창 -->
                             <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-                                <form action="" method="POST">
+                                <form action="/admin/category/remove" method="post">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -550,21 +241,19 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label" for="remove_folder_name">폴더</label>
-                                                <input type="text" class="form-control" name="folder_name" id="remove_folder_name" value="단어가 읽기다 기본편" readonly >
+                                                <label class="form-label" for="removeBookName">책 이름</label>
+                                                <input type="text" class="form-control" name="bookName" id="removeBookName" readonly >
+                                                
+                                                <input type="hidden" name="bookId" id="removeBookId" />
     
-                                                <label class="form-label mt-2" for="remove_category_cno">번호</label>
-                                                <input class="form-control" type="text" name="cno" id="remove_category_cno" value="5" readonly />
+                                                <label class="form-label mt-2" for="removeCategoryId">카테고리 번호</label>
+                                                <input class="form-control" type="text" name="categoryId" id="removeCategoryId" readonly />
     
-                                                <label class="form-label mt-2" for="remove_category_name">카테고리</label>
-                                                <input class="form-control" type="text" name="category_name" id="remove_category_name" value="Unit 05 - 취미1" readonly />
+                                                <label class="form-label mt-2" for="removeCategoryName">카테고리 이름</label>
+                                                <input class="form-control" type="text" name="categoryName" id="removeCategoryName" readonly />
 
-                                                <label class="form-label mt-2" for="word_list">소속된 단어</label>
-                                                <select class="custom-select mb-4" name="" id="word_list">
-                                                    <option value="">spice, 양념</option>
-                                                    <option value="">delicous, 맛있는</option>
-                                                    <option value="">bake, (빵을)굽다</option>
-                                                </select>
+                                                <label class="form-label mt-2" for="removeWordSelect">소속된 단어</label>
+                                                <select class="custom-select mb-4" id="removeWordSelect"></select>
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -581,16 +270,13 @@
                                                 <div class="alert alert-danger d-flex align-items-center" role="alert">
                                                     <svg class="bi flex-shrink-0 me-2 mr-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                                     <div>
-                                                      [ <span id="remove_result0">Unit 05 - 취미1</span> ] 에 소속된 모든 단어들도 같이 삭제됩니다.
+                                                      [ <span id="removeCategoryNameInfo"></span> ] 에 소속된 모든 단어들도 같이 삭제됩니다.
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            
-    
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                                                <button type="button" class="btn btn-primary">삭제하기</button>
+                                                <button type="submit" class="btn btn-primary">삭제하기</button>
                                             </div>
                                         </div>
                                     </div>
@@ -601,7 +287,7 @@
 
                             <!-- 카테고리 추가 모달창 -->
                             <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-                                <form action="" method="GET">
+                                <form action="/admin/category/register" method="post">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -611,15 +297,14 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <label class="form-label" for="add_folder_name">폴더</label>
-                                                <select class="custom-select" name="folder_name" id="add_folder_name">
-                                                    <option value="단어가 읽기다 - 기본편">단어가 읽기다 기본편</option>
-                                                    <option value="단어가 읽기다 - 실전편">단어가 읽기다 실전편</option>
-                                                </select>
+                                                <label class="form-label" for="addBookName">책 이름</label>
+                                                <input class="form-control" type="text" name="bookName" id="addBookName" readonly />
     
-                                                <label class="form-label mt-2" for="add_category_name">카테고리 이름</label>
-                                                <input class="form-control mb-4" type="text" name="category_name" id="add_category_name" 
-                                                    onkeyup="print_result('add_category_name', 'add_result')" placeholder="추가할 카테고리명을 입력해 주세요..." autocomplete="off" />
+    											<input type="hidden" name="bookId" id="addBookId" />
+    
+                                                <label class="form-label mt-2" for="addCategoryName">카테고리 이름</label>
+                                                <input class="form-control mb-4" type="text" name="categoryName" id="addCategoryName" 
+                                                    onkeyup="printResult('addCategoryName', 'addCategoryNameResult')" placeholder="추가할 카테고리명을 입력해 주세요..." autocomplete="off" />
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -636,7 +321,7 @@
                                                 <div class="alert alert-info d-flex align-items-center" role="alert">
                                                     <svg class="bi flex-shrink-0 me-2 mr-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                                                     <div>
-                                                      [ 단어가 읽기다 기본편 ] 폴더에 [ <span id="add_result"></span> ] 카테고리가 추가됩니다.
+                                                      [ <span id="addBookNameInfo"></span> ] 책에 [ <span id="addCategoryNameResult"></span> ] 카테고리가 추가됩니다.
                                                     </div>
                                                 </div>
                                             </div>
@@ -649,10 +334,31 @@
                                 </form>
                             </div>
                             <!-- ./카테고리 추가 모달창 -->
+                            
+                            <!-- 추가, 수정, 삭제 완료시 안내 모달창 -->
+                            <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">상태</h5>
+                                            <button type="button" class="close" data-dismiss="modal">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p id="result"></p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button id="stateCheckButton" type="button" class="btn btn-secondary" data-dismiss="modal">확인</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- //추가, 수정, 삭제 완료 모달창 -->
 
                             <!-- 추가, 삭제, 수정 관련 모달 JQuery -->
                             <script>
-                                function print_result(inputElementId, targetElementId) {
+                                function printResult(inputElementId, targetElementId) {
                                     const val = document.getElementById(inputElementId).value;
                                     const result = document.getElementById(targetElementId).innerText = val;
                                 }
@@ -686,7 +392,7 @@
 
                             <div class="row">
                                 <div class="col d-flex justify-content-end">
-                                    <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#addModal">추가하기</button>
+                                    <button class="btn btn-primary modalEventButton" type="button" data-toggle="modal" data-target="#addModal">추가하기</button>
                                     <button type="button" class="ml-2 btn btn-primary">선택된 아이템 삭제</button>
                                 </div>
                             </div>
@@ -695,88 +401,7 @@
                         </div>
                     </div>
                 </div>
+                
                 <!-- ./카테고리 관리 테이블 -->
-
-            </div>
-            <!-- End of Main Content -->
-
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2021</span>
-                    </div>
-                </div>
-            </footer>
-            <!-- End of Footer -->
-
-        </div>
-        <!-- End of Content Wrapper -->
-
-    </div>
-    <!-- End of Page Wrapper -->
-
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
-
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- 테이블 행 값을 모달로 전달하기  -->
-    <script>
-        $(".modalEventButton").on("click", function(){
-            var button = $(this);
-
-            var tr = button.parent().parent();
-            var td = tr.children();
-
-            console.log("CNO = " + td.eq(1).text());
-            console.log("CATEGORY_NAME = " + td.eq(2).text());
-
-            var cno = td.eq(1).text();
-            var category_name = td.eq(2).text();
-
-            //수정 창
-            document.getElementById("modify_category_cno").value = cno;
-            document.getElementById("modify_category_name").placeholder = category_name;
-            document.getElementById("modify_result0").innerText = category_name;
-
-            //삭제 창
-            document.getElementById("remove_category_cno").value = cno;
-            document.getElementById("remove_category_name").value = category_name;
-            document.getElementById("remove_result0").innerText = category_name;
-        });
-
-    </script>
-    
-    <!-- Bootstrap core JavaScript-->
-    <script src="/resources/vendor/jquery/jquery.min.js"></script>
-    <script src="/resources/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="/resources/vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="/resources/js/sb-admin-2.min.js"></script>
-
-</body>
-
-</html>
+                
+<%@ include file="includes/footer.jsp" %>

@@ -24,7 +24,8 @@
 	<!-- 특정 카테고리 수정하기 -->
 	<update id="update">
 		UPDATE TBL_CATEGORY SET
-		CATEGORY_NAME = #{categoryName}
+		CATEGORY_NAME = #{categoryName},
+		UPDATEDATE = SYSDATE
 		WHERE CATEGORY_ID = #{categoryId}
 	</update>
 	

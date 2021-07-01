@@ -38,7 +38,7 @@ public class BookRestController {
 	//모든 데이터를 조회한다.
 	@GetMapping(produces =  MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<BookVO>> getList() {
-		log.info("BookController.getList()");
+		log.info("BookRestController.getList()");
 		
 		List<BookVO> list = service.getList();
 		
@@ -50,7 +50,7 @@ public class BookRestController {
 				 consumes = MediaType.APPLICATION_JSON_VALUE,
 				 produces = MediaType.TEXT_PLAIN_VALUE)
 	public ResponseEntity<String> register(@RequestBody BookVO bookVO) {
-		log.info("BookController.register()");
+		log.info("BookRestController.register()");
 		log.info("BookVO = " + bookVO);
 		
 		//책 등록
@@ -73,7 +73,7 @@ public class BookRestController {
 	@GetMapping(value = "/{bookId}",
 				produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<BookVO> get(@PathVariable("bookId") Long bookId) {
-		log.info("BookController.get()");
+		log.info("BookRestController.get()");
 		log.info("bookId = " + bookId);
 		
 		BookVO bookVO = service.get(bookId);
@@ -97,7 +97,7 @@ public class BookRestController {
 				  consumes = MediaType.APPLICATION_JSON_VALUE,
 				  produces = MediaType.TEXT_PLAIN_VALUE)
 	public ResponseEntity<String> modify(@RequestBody BookVO bookVO, @PathVariable("bookId") Long bookId) {
-		log.info("BookController.modify()");
+		log.info("BookRestController.modify()");
 		
 		//{"bookId": 5, "bookName": "단어가 읽기다 기본편"}
 		boolean success = service.modify(bookVO);
@@ -120,7 +120,7 @@ public class BookRestController {
 	@DeleteMapping(value = "/{bookId}", 
 				   produces = MediaType.TEXT_PLAIN_VALUE)
 	public ResponseEntity<String> remove(@PathVariable("bookId") Long bookId) {
-		log.info("BookController.remove()");
+		log.info("BookRestController.remove()");
 		log.info("bookId = " + bookId);
 		
 		boolean success = service.remove(bookId);
