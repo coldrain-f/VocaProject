@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import edu.coldrain.domain.BookVO;
+import edu.coldrain.domain.Criteria;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -58,5 +59,23 @@ public class BookMapperTests {
 	public void testReadList() {
 		List<BookVO> list = mapper.readList();
 		list.forEach(book -> log.info(book));
+	}
+	
+	@Test
+	public void testReadListWithPaging() {
+		List<BookVO> books = mapper.readListWithPaging(new Criteria());
+		books.forEach(book -> log.info(books));
+	}
+	
+	@Test
+	public void testReadListWithPaging2() {
+		List<BookVO> books = mapper.readListWithPaging(new Criteria(2, 10));
+		books.forEach(book -> log.info(books));
+	}
+	
+	@Test
+	public void testReadTotalCount() {
+		int totalCount = mapper.readTotalCount();
+		log.info(totalCount);
 	}
 }

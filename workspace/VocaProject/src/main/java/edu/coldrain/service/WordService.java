@@ -2,6 +2,7 @@ package edu.coldrain.service;
 
 import java.util.List;
 
+import edu.coldrain.domain.Criteria;
 import edu.coldrain.domain.WordVO;
 
 public interface WordService {
@@ -23,4 +24,10 @@ public interface WordService {
 	
 	// 특정 카테고리의 모든 단어 목록 조회하기
 	public List<WordVO> getListByCategoryId(Long categoryId);
+	
+	// 특정 페이지의 해당하는 특정 카테고리에 소속된 모든 단어 목록 조회하기 ( 페이징 처리 )
+	public List<WordVO> getListWithPaging(Long categoryId, Criteria criteria);
+		
+	// 특정 카테고리에 소속된 모든 레코드 개수 조회하기
+	public int getTotalCount(Long categoryId);
 }

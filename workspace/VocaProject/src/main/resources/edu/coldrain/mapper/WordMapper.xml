@@ -54,4 +54,19 @@
 		]]>
 	</select>
 	
+	<select id="readListWithPaging" resultMap="wordResultMap">
+		<![CDATA[
+			SELECT N.* FROM (
+			SELECT /*+ INDEX_DESC(TBL_WORD PK_TBL_WORD)*/ROWNUM RN, TBL_WORD.* 
+			FROM TBL_WORD
+			WHERE CATEGORY_ID = #{categoryId} AND ROWNUM <= #{criteria.page} * #{criteria.amount} ) N
+			WHERE RN > ( #{criteria.page} - 1 ) * #{criteria.amount}
+		]]>
+	</select>
+	
+	<select id="readTotalCount" resultType="int">
+		SELECT COUNT(*) FROM TBL_WORD
+		WHERE CATEGORY_ID = #{categoryId}
+	</select>
+	
 </mapper>

@@ -3,6 +3,7 @@ package edu.coldrain.service;
 import java.util.List;
 
 import edu.coldrain.domain.CategoryVO;
+import edu.coldrain.domain.Criteria;
 
 public interface CategoryService {
 
@@ -23,4 +24,10 @@ public interface CategoryService {
 		
 	// 특정 책에 소속된 모든 카테고리의 목록 조회
 	public List<CategoryVO> getListByBookId(Long bookId);
+	
+	// 특정 페이지의 해당하는 특정 책에 소속된 모든 카테고리 목록 조회하기 ( 페이징 처리 )
+	public List<CategoryVO> getListWithPaging(Long bookId, Criteria criteria);
+	
+	// 특정 책에 소속된 모든 레코드 개수 조회하기
+	public int getTotalCount(Long bookId);
 }

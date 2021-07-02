@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import edu.coldrain.domain.Criteria;
 import edu.coldrain.domain.WordVO;
 import lombok.extern.log4j.Log4j;
 
@@ -64,6 +65,24 @@ public class WordMapperTests {
 	public void testReadListByCategoryId() {
 		List<WordVO> list = mapper.readListByCategoryId(23L);
 		list.forEach(word -> log.info(word));
+	}
+	
+	@Test
+	public void testReadListWithPaging() {
+		List<WordVO> words = mapper.readListWithPaging(64L, new Criteria());
+		words.forEach(word -> log.info(words));
+	}
+	
+	@Test
+	public void testReadListWithPaging2() {
+		List<WordVO> words = mapper.readListWithPaging(64L, new Criteria(2, 10));
+		words.forEach(word -> log.info(words));
+	}
+	
+	@Test
+	public void testReadTotalCount() {
+		int total = mapper.readTotalCount(64L);
+		log.info(total);
 	}
 	
 }

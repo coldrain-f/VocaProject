@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import edu.coldrain.domain.CategoryVO;
+import edu.coldrain.domain.Criteria;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -66,5 +67,23 @@ public class CategoryMapperTests {
 	public void testReadListByBookId() {
 		List<CategoryVO> list = mapper.readListByBookId(5L);
 		list.forEach(category -> log.info(category));
+	}
+	
+	@Test
+	public void testReadListWithPaging() {
+		List<CategoryVO> categories = mapper.readListWithPaging(5L, new Criteria());
+		categories.forEach(category -> log.info(category));
+	}
+	
+	@Test
+	public void testReadListWithPaging2() {
+		List<CategoryVO> categories = mapper.readListWithPaging(5L, new Criteria(2, 10));
+		categories.forEach(category -> log.info(category));
+	}
+	
+	@Test
+	public void testReadTotalCount() {
+		int total = mapper.readTotalCount(5L);
+		log.info(total);
 	}
 }

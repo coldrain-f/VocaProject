@@ -107,6 +107,8 @@
                             	$(document).ready(function () {
                             		const bookId = "<c:out value='${bookId }' />"
                             		const result = "<c:out value='${result }' />"
+                           			const page = "<c:out value='${criteria.page }' />"
+        		                    const amount = "<c:out value='${criteria.amount }' />"	
                             		
                             		if (result === "REGISTER SUCCESS") {
                             			$("#result").text("카테고리 등록을 완료했습니다.")
@@ -163,6 +165,11 @@
 								            })
 							            }
 							            
+							            //페이징 정보 설정
+							            $("input[name='page']").val(page)
+							            $("input[name='amount']").val(amount)
+							           
+							            
 							            $("#modifyCategoryId").val(categoryId)
 							            $("#modifyCategoryName").attr("placeholder", categoryName)
 							            $("#modifyCategoryNameInfo").text(categoryName)
@@ -192,6 +199,8 @@
                                                 <input type="text" class="form-control" name="bookName" id="modifyBookName" readonly />
                                                 
                                                 <input type="hidden" name="bookId" id="modifyBookId" />
+                                                <input type="hidden" name="page" />
+    										    <input type="hidden" name="amount" />
     
                                                 <label class="form-label mt-2" for="modifyCategoryId">카테고리 번호</label>
                                                 <input class="form-control" type="text" name="categoryId" id="modifyCategoryId" readonly />
@@ -245,6 +254,8 @@
                                                 <input type="text" class="form-control" name="bookName" id="removeBookName" readonly >
                                                 
                                                 <input type="hidden" name="bookId" id="removeBookId" />
+                                                <input type="hidden" name="page" />
+    										    <input type="hidden" name="amount" />
     
                                                 <label class="form-label mt-2" for="removeCategoryId">카테고리 번호</label>
                                                 <input class="form-control" type="text" name="categoryId" id="removeCategoryId" readonly />
@@ -301,6 +312,8 @@
                                                 <input class="form-control" type="text" name="bookName" id="addBookName" readonly />
     
     											<input type="hidden" name="bookId" id="addBookId" />
+    											<input type="hidden" name="page" />
+    										    <input type="hidden" name="amount" />
     
                                                 <label class="form-label mt-2" for="addCategoryName">카테고리 이름</label>
                                                 <input class="form-control mb-4" type="text" name="categoryName" id="addCategoryName" 
@@ -366,29 +379,33 @@
                             <!-- ./추가, 삭제, 수정 관련 모달 JQuery -->
                             
                             <!-- Begin Pagination -->
-                            <div class="row mt-3">
-                                <div class="col d-flex justify-content-center">
-                                    <nav>
-                                        <ul class="pagination">
-                                            <li class="page-item">
-                                                <a class="page-link" href="#">
-                                                    <span>&laquo;</span>
-                                                </a>
-                                            </li>
-                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">4</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">5</a></li>
-                                            <li class="page-item">
-                                                <a class="page-link" href="#">
-                                                    <span>&raquo;</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </nav>
-                                </div>
-                            </div>
+                            <c:if test="${bookId ne null }">
+	                            <div class="row mt-3">
+	                                <div class="col d-flex justify-content-center">
+	                                    <nav>
+	                                        <ul class="pagination">
+	                                            <li class="page-item ${pageDTO.prev ? '' : 'disabled' }">
+	                                                <a class="page-link" href="/admin/category/list?bookId=${bookId }&page=${pageDTO.startPage - 1}&amount=10">
+	                                                    <span>&laquo;</span>
+	                                                </a>
+	                                            </li>
+	                                            <c:forEach var="index" begin="${pageDTO.startPage }" end="${pageDTO.endPage }" step="1">
+		                                            <li class="page-item ${pageDTO.criteria.page eq index ? 'active' : '' }">
+		                                            	<a class="page-link" 
+		                                            		href="/admin/category/list?bookId=${bookId }&page=${index }&amount=${pageDTO.criteria.amount}">${index }
+	                                            		</a>
+		                                            </li>
+	                                            </c:forEach>
+	                                            <li class="page-item ${pageDTO.next ? '' : 'disabled' }">
+	                                                <a class="page-link" href="#">
+	                                                    <span>&raquo;</span>
+	                                                </a>
+	                                            </li>
+	                                        </ul>
+	                                    </nav>
+	                                </div>
+	                            </div>
+                            </c:if>
 
                             <div class="row">
                                 <div class="col d-flex justify-content-end">

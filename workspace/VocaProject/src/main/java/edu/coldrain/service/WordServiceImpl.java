@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import edu.coldrain.domain.CategoryVO;
+import edu.coldrain.domain.Criteria;
 import edu.coldrain.domain.WordVO;
 import edu.coldrain.mapper.WordMapper;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +45,16 @@ public class WordServiceImpl implements WordService {
 	public List<WordVO> getListByCategoryId(Long categoryId) {
 		return mapper.readListByCategoryId(categoryId);
 	}
+
+	@Override
+	public List<WordVO> getListWithPaging(Long categoryId, Criteria criteria) {
+		return mapper.readListWithPaging(categoryId, criteria);
+	}
+
+	@Override
+	public int getTotalCount(Long categoryId) {
+		return mapper.readTotalCount(categoryId);
+	}
+
 
 }

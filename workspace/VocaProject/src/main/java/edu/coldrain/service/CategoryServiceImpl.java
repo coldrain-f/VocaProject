@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.coldrain.domain.CategoryVO;
+import edu.coldrain.domain.Criteria;
 import edu.coldrain.mapper.CategoryMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +43,16 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public List<CategoryVO> getListByBookId(Long bookId) {
 		return mapper.readListByBookId(bookId);
+	}
+
+	@Override
+	public List<CategoryVO> getListWithPaging(Long bookId, Criteria criteria) {
+		return mapper.readListWithPaging(bookId, criteria);
+	}
+
+	@Override
+	public int getTotalCount(Long bookId) {
+		return mapper.readTotalCount(bookId);
 	}
 
 }

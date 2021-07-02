@@ -47,5 +47,20 @@
 		SELECT /*+ INDEX_DESC(TBL_CATEGORY PK_TBL_CATEGORY)*/TBL_CATEGORY.* FROM TBL_CATEGORY
 		WHERE BOOK_ID = #{bookId}
 	</select>
+	
+	<select id="readListWithPaging" resultMap="categoryResultMap">
+		<![CDATA[
+			SELECT N.* FROM (
+			SELECT /*+ INDEX_DESC(TBL_CATEGORY PK_TBL_CATEGORY)*/ROWNUM RN, TBL_CATEGORY.* 
+			FROM TBL_CATEGORY
+			WHERE BOOK_ID = #{bookId} AND ROWNUM <= #{criteria.page} * #{criteria.amount} ) N
+			WHERE RN > ( #{criteria.page} - 1 ) * #{criteria.amount}
+		]]>
+	</select>
+	
+	<select id="readTotalCount" resultType="int">
+		SELECT COUNT(*) FROM TBL_CATEGORY
+		WHERE BOOK_ID = #{bookId}
+	</select>
 
 </mapper>

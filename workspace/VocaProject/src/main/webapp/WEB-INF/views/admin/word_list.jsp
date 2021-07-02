@@ -37,6 +37,8 @@
 		                        const bookId = "<c:out value='${bookId }' />"
 		                    	const categoryId = "<c:out value='${categoryId }' />"
 		                    	const result = "<c:out value='${result }' />"
+	                    		const page = "<c:out value='${criteria.page }' />"
+		                    	const amount = "<c:out value='${criteria.amount }' />"	
 		                    	
 		                    	//추가, 수정, 삭제 완료시 결과 모달창을 띄워준다.
 		                    	if (result === "REGISTER SUCCESS") {
@@ -148,7 +150,7 @@
 
 						            const wordId = td.eq(1).text()
 						            const wordName = td.eq(2).text()
-						            const wordMeaning = td.eq(3).text()
+					           		const wordMeaning = td.eq(3).text()
 						           	
 						           	//최초 접근시엔 책 아이디와 카테고리가 아이디가 없으므로 체크해준다.
 						            if (bookId !== "" && categoryId !== "") {
@@ -166,6 +168,10 @@
 							            	$("#addCategoryNameInfo").text(categoryVO.categoryName)
 							            })
 						            }
+						            
+						            //페이징 정보 설정
+						            $("input[name='page']").val(page)
+						            $("input[name='amount']").val(amount)
 						            
 						            
 						            $("#modifyWordId").val(wordId)
@@ -286,6 +292,9 @@
 
 												<input type="hidden" name="bookId" id="modifyBookId" />
     										    <input type="hidden" name="categoryId" id="modifyCategoryId"  />
+    										    <input type="hidden" name="page" />
+    										    <input type="hidden" name="amount" />
+    										    
     										    
                                                 <label class="form-label mt-2" for="modifyWordId">단어 번호</label>
                                                 <input class="form-control" type="text" name="wordId" id="modifyWordId" value="1" readonly />
@@ -351,6 +360,8 @@
     
                                                 <input type="hidden" name="bookId" id="removeBookId" />
     										    <input type="hidden" name="categoryId" id="removeCategoryId" />
+    										    <input type="hidden" name="page"  />
+    										    <input type="hidden" name="amount" />
     
                                                 <label class="form-label mt-2" for="removeWordId">단어 번호</label>
                                                 <input class="form-control" type="text" name="wordId" id="removeWordId" value="1" readonly />
@@ -393,6 +404,8 @@
                                                 
                                                 <input type="hidden" name="bookId" id="addBookId" value="" />
     										    <input type="hidden" name="categoryId" id="addCategoryId" value="" />
+    										    <input type="hidden" name="page"  />
+    										    <input type="hidden" name="amount" />
 
                                                 <label class="form-label mt-2" for="addWordName">단어</label>
                                                 <input type="text" class="form-control" name="wordName" id="addWordName" autocomplete="off"
@@ -454,29 +467,32 @@
                             <!-- //추가, 수정, 삭제 완료 모달창 -->
 
                             <!-- Begin Pagination -->
-                            <div class="row mt-3">
-                                <div class="col d-flex justify-content-center">
-                                    <nav>
-                                        <ul class="pagination">
-                                            <li class="page-item">
-                                                <a class="page-link" href="#">
-                                                    <span>&laquo;</span>
-                                                </a>
-                                            </li>
-                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">4</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">5</a></li>
-                                            <li class="page-item">
-                                                <a class="page-link" href="#">
-                                                    <span>&raquo;</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </nav>
-                                </div>
-                            </div>
+                            <c:if test="${categoryId ne null }">
+	                            <div class="row mt-3">
+	                                <div class="col d-flex justify-content-center">
+	                                    <nav>
+	                                        <ul class="pagination">
+	                                            <li class="page-item ${pageDTO.prev ? '' : 'disabled' }">
+	                                                <a class="page-link" href="#">
+	                                                    <span>&laquo;</span>
+	                                                </a>
+	                                            </li>
+	                                            <c:forEach var="index" begin="${pageDTO.startPage }" end="${pageDTO.endPage }" step="1">
+		                                            <li class="page-item ${pageDTO.criteria.page eq index ? 'active' : '' }">
+		                                            	<a class="page-link" 
+		                                            		href="/admin/word/list?bookId=${bookId }&categoryId=${categoryId }&page=${index }&amount=${pageDTO.criteria.amount }">${index }</a>
+	                                            	</li>                                            
+	                                            </c:forEach>
+	                                            <li class="page-item ${pageDTO.next ? '' : 'disabled' }">
+	                                                <a class="page-link" href="#">
+	                                                    <span>&raquo;</span>
+	                                                </a>
+	                                            </li>
+	                                        </ul>
+	                                    </nav>
+	                                </div>
+	                            </div>
+                            </c:if>
 
                             <div class="row">
                                 <div class="col d-flex justify-content-end">

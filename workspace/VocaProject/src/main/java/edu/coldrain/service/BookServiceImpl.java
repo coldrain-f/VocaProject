@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import edu.coldrain.domain.BookVO;
+import edu.coldrain.domain.Criteria;
 import edu.coldrain.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -61,5 +62,15 @@ public class BookServiceImpl implements BookService {
 	@Override
 	public List<BookVO> getList() {
 		return mapper.readList();
+	}
+
+	@Override
+	public List<BookVO> getListWithPaging(Criteria criteria) {
+		return mapper.readListWithPaging(criteria);
+	}
+
+	@Override
+	public int getTotalCount() {
+		return mapper.readTotalCount();
 	}
 }

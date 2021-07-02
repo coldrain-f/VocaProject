@@ -2,6 +2,9 @@ package edu.coldrain.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
+import edu.coldrain.domain.Criteria;
 import edu.coldrain.domain.WordVO;
 
 public interface WordMapper {
@@ -23,4 +26,10 @@ public interface WordMapper {
 	
 	// 특정 카테고리의 모든 단어 목록 조회하기
 	public List<WordVO> readListByCategoryId(Long categoryId);
-}
+	
+	// 특정 페이지의 해당하는 특정 카테고리에 소속된 모든 단어 목록 조회하기 ( 페이징 처리 )
+	public List<WordVO> readListWithPaging(@Param("categoryId") Long categoryId, @Param("criteria") Criteria criteria);
+
+	// 특정 카테고리에 소속된 모든 레코드 개수 조회하기
+	public int readTotalCount(Long categoryId);
+}	

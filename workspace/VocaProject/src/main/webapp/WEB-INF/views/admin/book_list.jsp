@@ -90,6 +90,8 @@
                             	$(document).ready(function() {
                             		
                             		const result = "<c:out value='${result }' />";
+                            		const page = "<c:out value='${criteria.page }' />"
+           		                    const amount = "<c:out value='${criteria.amount }' />"	
                             		
                             		if (result === "REGISTER SUCCESS") {
                             			$("#result").text("책 등록을 완료했습니다.")
@@ -112,6 +114,10 @@
 							
 							            const bookId = td.eq(1).text();
 							            const bookName = td.eq(2).text()
+							            
+							            //페이징 정보 설정
+							            $("input[name='page']").val(page)
+							            $("input[name='amount']").val(amount)
 							            
 							            $("#modifyBookId").val(bookId)
 							            $("#modifyBookName").attr("placeholder", bookName)
@@ -222,6 +228,9 @@
                                             <div class="modal-body">
                                                 <label class="form-label mt-2" for="modifyBookId">책 번호</label>
                                                 <input class="form-control" type="text" name="bookId" id="modifyBookId" readonly />
+                                                
+                                                <input type="hidden" name="page" />
+    										    <input type="hidden" name="amount" />
     
                                                 <label class="form-label mt-2" for="modifyBookName">책 이름</label>
                                                 <input class="form-control mb-4" type="text" name="bookName" id="modifyBookName" 
@@ -270,6 +279,9 @@
                                             <div class="modal-body">
                                                 <label class="form-label mt-2" for="removeBookId">책 번호</label>
                                                 <input class="form-control" type="text" name="bookId" id="removeBookId" readonly />
+                                                
+                                                <input type="hidden" name="page" />
+    										    <input type="hidden" name="amount" />
     
                                                 <label class="form-label mt-2" for="removeBookName">책 이름</label>
                                                 <input class="form-control" type="text" name="bookName" id="removeBookName" readonly />
@@ -325,6 +337,8 @@
                                                 <label class="form-label mt-2" for="addBookName">책 이름</label>
                                                 <input class="form-control mb-4" type="text" name="bookName" id="addBookName" 
                                                     onkeyup="printResult('addBookName', 'addBookNameResult')" placeholder="추가할 책 이름을 입력해 주세요..." autocomplete="off" />
+                                            	<input type="hidden" name="page" />
+    										    <input type="hidden" name="amount" />
                                             
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -356,32 +370,31 @@
                             <!-- ./책 추가하기 모달창 -->
 
 
-                            <!-- 추가, 삭제, 수정 관련 모달 JQuery -->
+                            <!-- ( 추가/수정/삭제 관련 모달 입력 이벤트 ) -->
                             <script>
                                 function printResult(inputElementId, targetElementId) {
                                     const val = document.getElementById(inputElementId).value;
                                     const result = document.getElementById(targetElementId).innerText = val;
                                 }
                             </script>
-                            <!-- ./추가, 삭제, 수정 관련 모달 JQuery -->
                             
                             <!-- Begin Pagination -->
                             <div class="row mt-3">
                                 <div class="col d-flex justify-content-center">
                                     <nav>
                                         <ul class="pagination">
-                                            <li class="page-item">
-                                                <a class="page-link" href="#">
+                                            <li class="page-item ${pageDTO.prev ? '' : 'disabled' }">
+                                                <a class="page-link" href="/admin/book/list?page=${pageDTO.startPage - 1 }&amount=10">
                                                     <span>&laquo;</span>
                                                 </a>
                                             </li>
-                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">4</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">5</a></li>
-                                            <li class="page-item">
-                                                <a class="page-link" href="#">
+                                            <c:forEach begin="${pageDTO.startPage }" end="${pageDTO.endPage }" step="1" var="index">
+	                                            <li class="page-item ${pageDTO.criteria.page eq index ? 'active' : '' }">
+	                                            	<a class="page-link" href="/admin/book/list?page=${index }&amount=10">${index }</a>
+	                                            </li>
+                                            </c:forEach>
+                                            <li class="page-item ${pageDTO.next ? '' : 'disabled' }">
+                                                <a class="page-link" href="/admin/book/list?page=${pageDTO.endPage + 1 }&amount=10">
                                                     <span>&raquo;</span>
                                                 </a>
                                             </li>
@@ -389,6 +402,7 @@
                                     </nav>
                                 </div>
                             </div>
+                            
 
                             <div class="row">
                                 <div class="col d-flex justify-content-end">

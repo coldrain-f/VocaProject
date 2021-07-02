@@ -23,7 +23,8 @@
 	<!-- 특정 책 수정하기 -->
 	<update id="update">
 		UPDATE TBL_BOOK SET
-		BOOK_NAME = #{bookName}
+		BOOK_NAME = #{bookName},
+		UPDATEDATE = SYSDATE
 		WHERE BOOK_ID = #{bookId}
 	</update>
 	
@@ -38,6 +39,21 @@
 		<![CDATA[
 			SELECT /*+ INDEX_DESC(TBL_BOOK PK_TBL_BOOK)*/TBL_BOOK.* FROM TBL_BOOK
 		]]>
+	</select>
+	
+	<!-- 특정 페이지의 해당하는 책의 목록 조회하기 ( 페이징 처리 ) -->
+	<select id="readListWithPaging" resultMap="bookResultMap">
+		<![CDATA[
+			SELECT N.* FROM (
+			SELECT /*+ INDEX_DESC(TBL_BOOK PK_TBL_BOOK)*/ROWNUM RN, TBL_BOOK.* 
+			FROM TBL_BOOK
+			WHERE ROWNUM <= (#{page} * #{amount}) ) N
+			WHERE RN > ((#{page} - 1) * #{amount})
+		]]>
+	</select>
+	
+	<select id="readTotalCount" resultType="int">
+		SELECT COUNT(*) FROM TBL_BOOK
 	</select>
 	
 </mapper>
