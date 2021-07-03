@@ -13,8 +13,22 @@ var wordService = (function() {
             }
         })
     }
+
+    function getShuffleList(categoryId, callback, error) {
+        const url = "/categories/" + categoryId + "/words/shuffle"
+        $.getJSON(url, function(list) {
+            if (callback) {
+                callback(list)
+            }
+        }).fail(function(xhr, status, err) {
+            if (error) {
+                error(err)
+            }
+        })
+    }
     
     return {
-        getList: getList
+        getList: getList,
+        getShuffleList: getShuffleList
     }
 })()

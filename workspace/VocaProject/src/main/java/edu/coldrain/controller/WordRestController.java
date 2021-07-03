@@ -1,5 +1,6 @@
 package edu.coldrain.controller;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,18 @@ public class WordRestController {
 		
 		List<WordVO> list = service.getListByCategoryId(categoryId);
 		list.forEach(word -> log.info(word));
+		
+		return new ResponseEntity<>(list, HttpStatus.OK);
+	}
+	
+	//특정 카테고리에 소속된 단어 목록 조회하기 ( 랜덤 )
+	@GetMapping(value = "/categories/{categoryId}/words/shuffle",
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<WordVO>> getShuffleList(@PathVariable("categoryId") Long categoryId) {
+		log.info("WordController.getShuffleList()");
+		
+		List<WordVO> list = service.getListByCategoryId(categoryId);
+		Collections.shuffle(list);
 		
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}

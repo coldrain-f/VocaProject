@@ -78,7 +78,9 @@
                                     		<tr>
 	                                            <td><input type="checkbox"></td>
 	                                            <td><c:out value="${category.categoryId }" /></td>
-	                                            <td><c:out value="${category.categoryName }" /></td>
+	                                            <td>
+	                                            	<a class="text-muted" href="/admin/word/list?bookId=<c:out value="${bookId }" />&categoryId=<c:out value="${category.categoryId }" />" ><c:out value="${category.categoryName }" /></a>
+                                            	</td>
 	                                            <td><fmt:formatDate value="${category.regdate }" pattern="yyyy-MM-dd" /></td>	
 	                                            <td><fmt:formatDate value="${category.updatedate }" pattern="yyyy-MM-dd" /></td>
 	                                            <td class="text-center">
@@ -130,7 +132,7 @@
 							            const td = tr.children()
 							
 							            const categoryId = td.eq(1).text();
-							            const categoryName = td.eq(2).text()
+							            const categoryName = td.eq(2).children("a").text()
 							            
 							            if (bookId !== "") {
 								            bookService.get(bookId, function(bookVO) {

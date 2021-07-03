@@ -41,6 +41,7 @@
 			<!-- 자바스크립트 모듈 -->
             <script src="/resources/js/category-service.js"></script>
             <script src="/resources/js/book-service.js"></script>
+            <script src="/resources/js/word-service2.js"></script>
             
 			<script>
 				$(document).ready(function() {
@@ -97,6 +98,67 @@
 					        }
 					    })
 					})
+					
+					
+					$("#startButton").on("click", function() {
+						const categoryId = $("#categorySelect option:selected").val()
+						
+						const bookName = $("#bookSelect option:selected").text()
+						const categoryName = $("#categorySelect option:selected").text()
+						
+						$("#bookName").text(bookName)
+						$("#categoryName").text(categoryName)
+						
+						let total = 0
+						let start = 1;
+						let index = start - 1 //학습 단어
+						wordService.getShuffleList(categoryId, function(words) {
+							for (const word of words) {
+								++total
+							}
+							
+							// getShuffleList 에서 학습하지 말고 setTimeout을 사용해 보자
+							$("#start").text(start)
+							$("#total").text("/" + total)
+							
+							//학습 시작
+							const problem = words[index].wordMeaning
+							$("#problem").text(problem)
+							
+							//확인 버튼 클릭 이벤트 리스너
+							$("#checkButton").on("click", function() {
+								//사용자가 입력한 스펠링을 가지고 온다.
+								const userAnswer = $("#answer").val()
+								const answer = words[index].wordName
+								
+								console.log("사용자 입력: " + userAnswer)
+								console.log("정답: " + answer)
+								
+								if (userAnswer === answer) {
+									alert("정답입니다.")
+									++start
+									index = start - 1
+									
+									//진행 카운트 갱신
+									$("#start").text(start)
+									
+									//새로운 문제로 갱신
+									const problem = words[index].wordMeaning
+									$("#problem").text(problem)
+									
+									//사용자 입력창 초기화
+									$("#answer").val("")
+									
+								} else {
+									alert("틀렸습니다.")
+								}
+								
+							})
+							
+						})
+						
+					})
+					
 				})
 			</script>
 
@@ -105,26 +167,28 @@
                     <div class="card shadow">
                         <div class="card-header">
                             <div class="row mb-4 pl-2 pr-2">
-                                <label for="" class="form-label">폴더</label>
+                                <label for="" class="form-label">책</label>
                                 <select name="" id="bookSelect" class="custom-select">
-                                    <option value="">단어가 읽기다 기본편</option>
+                                    <option value=""></option>
                                 </select>
                             </div>
                             <div class="row mb-4 pl-2 pr-2">
                                 <label for="" class="form-label">카테고리</label>
                                 <select name="" id="categorySelect" class="custom-select">
-                                    <option value="">Unit 01 - 요리</option>
+                                    <option value=""></option>
                                 </select>
                             </div>
                             <div class="row mb-4 pl-2 pr-2 d-flex justify-content-end">
-                                <button type="button" class="btn btn-info">학습 시작</button>
+                                <button id="startButton" type="button" class="btn btn-info">학습 시작</button>
                             </div>
                             <hr>
                             <div class="row pl-2 pr-2 mt-1">
                                 <h6 class="w-100 d-flex justify-content-center title mt-3">
-                                    단어가 읽기다 기본편 Unit 01 - 요리
+                                    <span id="bookName"></span>&nbsp;<span id="categoryName"></span>
                                 </h6>
-                                <span class="w-100 d-flex justify-content-center state" style="font-size: 12px;">1/20</span>
+                                <span class="w-100 d-flex justify-content-center state" style="font-size: 12px;">
+                                	<span id="start"></span><span id="total"></span>
+                               	</span>                                
                                 <form action="" class="form-inline d-flex justify-content-end w-100 mt-4">
                                     <div class="input-group">
                                         <select name="" id="speech-language" class="custom-select mr-1">
@@ -146,12 +210,12 @@
 
                         <div class="card-body pt-5" style="height: 330px">
                             <div class="row d-flex justify-content-center mb-1 pt-5">
-                                <form class="form-inline" action="">
-                                    <label class="form-label mr-2 mb-1" for="" style="font-size: 18px">양념</label>
+                                <form class="form-inline">
+                                    <label id="problem" for="answer" class="form-label mr-2 mb-1" style="font-size: 18px"></label>
                                     <div class="input-group">
-                                        <input class="form-control input-answer" type="text" placeholder="스펠링을 입력해 주세요..." >
+                                        <input class="form-control input-answer" type="text" id="answer" placeholder="스펠링을 입력해 주세요..." >
                                         <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-secondary">확인</button>
+                                            <button id="checkButton" type="button" class="btn btn-outline-secondary">확인</button>
                                             <button type="button" class="btn btn-outline-secondary">모르겠어요</button>
                                         </div>
                                     </div>

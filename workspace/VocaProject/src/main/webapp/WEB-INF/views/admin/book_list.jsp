@@ -62,7 +62,9 @@
                                     		<tr>
 	                                            <td><input type="checkbox"></td>
 	                                            <td><c:out value="${book.bookId }" /></td>
-	                                            <td><c:out value="${book.bookName }" /></td>
+	                                            <td>
+	                                            	<a class="text-muted" href="/admin/category/list?bookId=<c:out value="${book.bookId }" />"><c:out value="${book.bookName }" /></a>
+                                           		</td>
 	                                            <td><fmt:formatDate value="${book.regdate }" pattern="yyyy-MM-dd" /></td>	
 	                                            <td><fmt:formatDate value="${book.updatedate }" pattern="yyyy-MM-dd" /></td>
 	                                            <td class="text-center">
@@ -112,8 +114,8 @@
 							            const tr = button.parent().parent()
 							            const td = tr.children()
 							
-							            const bookId = td.eq(1).text();
-							            const bookName = td.eq(2).text()
+							            const bookId = td.eq(1).text()
+							            const bookName = td.eq(2).children("a").text()
 							            
 							            //페이징 정보 설정
 							            $("input[name='page']").val(page)
