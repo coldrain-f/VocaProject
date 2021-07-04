@@ -109,54 +109,103 @@
 						$("#bookName").text(bookName)
 						$("#categoryName").text(categoryName)
 						
-						let total = 0
-						let start = 1;
-						let index = start - 1 //학습 단어
-						wordService.getShuffleList(categoryId, function(words) {
-							for (const word of words) {
-								++total
-							}
-							
-							// getShuffleList 에서 학습하지 말고 setTimeout을 사용해 보자
-							$("#start").text(start)
-							$("#total").text("/" + total)
-							
-							//학습 시작
-							const problem = words[index].wordMeaning
-							$("#problem").text(problem)
-							
-							//확인 버튼 클릭 이벤트 리스너
-							$("#checkButton").on("click", function() {
-								//사용자가 입력한 스펠링을 가지고 온다.
-								const userAnswer = $("#answer").val()
-								const answer = words[index].wordName
-								
-								console.log("사용자 입력: " + userAnswer)
-								console.log("정답: " + answer)
-								
-								if (userAnswer === answer) {
-									alert("정답입니다.")
-									++start
-									index = start - 1
-									
-									//진행 카운트 갱신
-									$("#start").text(start)
-									
-									//새로운 문제로 갱신
-									const problem = words[index].wordMeaning
-									$("#problem").text(problem)
-									
-									//사용자 입력창 초기화
-									$("#answer").val("")
-									
-								} else {
-									alert("틀렸습니다.")
-								}
-								
-							})
-							
+						let words = null
+						let wrongWords = []
+						let completeGetShuffleList = false
+						wordService.getShuffleList(categoryId, function(list) {
+							words = list
+							completeGetShuffleList = true
 						})
 						
+						const listCheckInterval = setInterval(function() {
+							//0.1초 단위로 리스트를 가져왔는지 체크한다.
+							console.log(completeGetShuffleList)
+							if (completeGetShuffleList) { //단어 리스트를 가져왔다면 
+								//인터벌을 클리어하고 학습을 시작한다.
+								clearInterval(listCheckInterval)
+								startStudy()
+							}
+						}, 100)
+						
+						
+						// 학습 시작
+						function startStudy() {
+							// 처음 문제 출제
+							let index = 0
+							$("#problem").text(words[index].wordMeaning)
+							
+							// 확인 버튼을 클릭하면?
+							$("#checkButton").on("click", function() {
+								// 사용자 입력과 정답이 같다면
+								const answer = words[index].wordName
+								console.log("정답: " + answer)
+								console.log("사용자 입력: " + $("#userInput").val())
+								
+								const userInput = $("#userInput").val()
+								if (userInput === answer) {
+									alert("정답입니다.")
+									//새로운 문제 출제
+									++index
+									if (index >= words.length) {
+										alert("학습을 종료합니다.")
+										location.reload()
+									} else {									
+										$("#problem").text(words[index].wordMeaning)
+										// focus
+										$("#userInput").val("")
+										$("#userInput").focus()
+									}
+								} else {
+									alert("틀렸습니다.")
+									// focus
+									$("#userInput").val("")
+									$("#userInput").focus()
+								}
+							})
+							
+							$("#userInput").on("keyup", function(e) {
+								if (e.keyCode === 13) {
+									// 사용자 입력과 정답이 같다면
+									const answer = words[index].wordName
+									console.log("정답: " + answer)
+									console.log("사용자 입력: " + $("#userInput").val())
+									
+									const userInput = $("#userInput").val()
+									if (userInput === answer) {
+										$("#result").text("정답입니다.")
+										$("#resultModal").modal("show")
+										setTimeout(function() {
+											$("#resultModal").modal("hide")
+											$("#userInput").val("")
+											$("#userInput").focus()
+										}, 800)
+										//새로운 문제 출제
+										++index
+										if (index >= words.length) {
+											$("#result").text("학습을 종료합니다.")
+											$("#resultModal").modal("show")
+											setTimeout(function() {
+												location.reload()
+											}, 2000)
+										} else {									
+											$("#problem").text(words[index].wordMeaning)
+										}
+									} else {
+										$("#result").text("틀렸습니다.")
+										$("#resultModal").modal("show")	
+										wrongWords.push({name: words[index].wordName, meaning: words[index].wordMeaning})
+										console.log(wrongWords)
+										setTimeout(function() {
+											$("#resultModal").modal("hide")
+											$("#userInput").val("")
+											$("#userInput").focus()
+										}, 800)
+									}
+									
+								}
+							})
+						}
+
 					})
 					
 				})
@@ -210,10 +259,10 @@
 
                         <div class="card-body pt-5" style="height: 330px">
                             <div class="row d-flex justify-content-center mb-1 pt-5">
-                                <form class="form-inline">
-                                    <label id="problem" for="answer" class="form-label mr-2 mb-1" style="font-size: 18px"></label>
+                                <form class="form-inline" onsubmit="return false" >
+                                    <label id="problem" for="userInput" class="form-label mr-2 mb-1" style="font-size: 18px"></label>
                                     <div class="input-group">
-                                        <input class="form-control input-answer" type="text" id="answer" placeholder="스펠링을 입력해 주세요..." >
+                                        <input class="form-control input-answer" type="text" id="userInput" autocomplete="off" placeholder="스펠링을 입력해 주세요..." >
                                         <div class="input-group-append">
                                             <button id="checkButton" type="button" class="btn btn-outline-secondary">확인</button>
                                             <button type="button" class="btn btn-outline-secondary">모르겠어요</button>
@@ -233,5 +282,26 @@
 
                 </div>
                 <!-- /.container-fluid -->
+                
+                <!-- 추가, 수정, 삭제 완료시 안내 모달창 -->
+                <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">상태</h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="result"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="stateCheckButton" type="button" class="btn btn-secondary" data-dismiss="modal">확인</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              	<!-- //추가, 수정, 삭제 완료 모달창 -->
 
            <%@ include file="../admin/includes/footer.jsp" %>
