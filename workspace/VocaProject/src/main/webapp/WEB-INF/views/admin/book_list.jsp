@@ -86,7 +86,7 @@
                             <!-- 자바스크립트 모듈 -->
                             <script src="/resources/js/book-service.js"></script>
                             <script src="/resources/js/category-service.js"></script>
-                            <script src="/resources/js/word-service.js"></script>
+                            <script src="/resources/js/word-service2.js"></script>
                             
                             <script>
                             	$(document).ready(function() {

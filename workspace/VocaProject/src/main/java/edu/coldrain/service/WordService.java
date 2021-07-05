@@ -25,6 +25,12 @@ public interface WordService {
 	// 특정 카테고리의 모든 단어 목록 조회하기
 	public List<WordVO> getListByCategoryId(Long categoryId);
 	
+	// 특정 카테고리의 모든 단어 목록 조회하기 ( 1/4/7/14 학습법 적용 )
+	public List<WordVO> getListByRownum(Long rownum, Long bookId);
+		
+	// 카테고리로 ROWNUM 조회
+	public Long getRownumByCategoryId(Long categoryId, Long bookId);
+	
 	// 특정 페이지의 해당하는 특정 카테고리에 소속된 모든 단어 목록 조회하기 ( 페이징 처리 )
 	public List<WordVO> getListWithPaging(Long categoryId, Criteria criteria);
 		

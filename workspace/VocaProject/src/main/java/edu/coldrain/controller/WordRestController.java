@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.coldrain.domain.WordVO;
+import edu.coldrain.service.CategoryService;
 import edu.coldrain.service.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -25,6 +26,7 @@ import lombok.extern.log4j.Log4j;
 public class WordRestController {
 
 	private final WordService service;
+	private final CategoryService categoryService;
 	
 	/*    ------ RestFul API 설계
 	 * 	  /words GET 모든 단어 목록 조회하기 -------- 당장 구현X
@@ -53,7 +55,14 @@ public class WordRestController {
 	public ResponseEntity<List<WordVO>> getShuffleList(@PathVariable("categoryId") Long categoryId) {
 		log.info("WordController.getShuffleList()");
 		
-		List<WordVO> list = service.getListByCategoryId(categoryId);
+		//카테고리 번호로 bookId를 조회한다.
+		Long bookId = categoryService.get(categoryId).getBookId();
+		
+		//카테고리 번호로 해당하는 ROWNUM을 조회한다.
+		Long rownum = service.getRownumByCategoryId(categoryId, bookId);
+		
+		//조회된 rownum으로 단어 목록을 조회한다.
+		List<WordVO> list = service.getListByRownum(rownum, bookId);
 		Collections.shuffle(list);
 		
 		return new ResponseEntity<>(list, HttpStatus.OK);

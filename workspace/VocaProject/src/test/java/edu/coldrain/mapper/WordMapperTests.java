@@ -20,6 +20,9 @@ public class WordMapperTests {
 	@Autowired
 	private WordMapper mapper;
 	
+	@Autowired
+	private CategoryMapper categoryMapper;
+	
 	@Test
 	public void testExist() {
 		log.info(mapper);
@@ -83,6 +86,22 @@ public class WordMapperTests {
 	public void testReadTotalCount() {
 		int total = mapper.readTotalCount(64L);
 		log.info(total);
+	}
+	
+	@Test
+	public void testReadRownumByCategoryId() {
+		//카테고리로 bookId를 조회한다.
+		Long bookId = categoryMapper.read(67L).getBookId();
+		Long rownum = mapper.readRownumByCategoryId(67L, bookId);
+		log.info(rownum);
+	}
+	
+	@Test
+	public void testReadListByRownum() {
+		Long bookId = categoryMapper.read(67L).getBookId();
+		Long rownum = mapper.readRownumByCategoryId(67L, bookId);
+		List<WordVO> words = mapper.readListByRownum(rownum, bookId);
+		words.forEach(word -> log.info(word));
 	}
 	
 }

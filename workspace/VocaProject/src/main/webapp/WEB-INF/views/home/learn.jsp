@@ -43,6 +43,9 @@
             <script src="/resources/js/book-service.js"></script>
             <script src="/resources/js/word-service2.js"></script>
             
+            <!-- Underscore.js -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+            
 			<script>
 				$(document).ready(function() {
 					$("#bookSelect").empty()
@@ -111,9 +114,14 @@
 						
 						let words = null
 						let wrongWords = []
+						let total = 0
 						let completeGetShuffleList = false
 						wordService.getShuffleList(categoryId, function(list) {
 							words = list
+							//total을 구한다.
+							for (const word of words) {
+								++total
+							}
 							completeGetShuffleList = true
 						})
 						
@@ -123,54 +131,30 @@
 							if (completeGetShuffleList) { //단어 리스트를 가져왔다면 
 								//인터벌을 클리어하고 학습을 시작한다.
 								clearInterval(listCheckInterval)
-								startStudy()
+								startStudy(words)
 							}
 						}, 100)
 						
 						
 						// 학습 시작
-						function startStudy() {
+						function startStudy(items) {
+							console.log("startStudy()")
+							console.log(items)
 							// 처음 문제 출제
 							let index = 0
-							$("#problem").text(words[index].wordMeaning)
-							
-							// 확인 버튼을 클릭하면?
-							$("#checkButton").on("click", function() {
-								// 사용자 입력과 정답이 같다면
-								const answer = words[index].wordName
-								console.log("정답: " + answer)
-								console.log("사용자 입력: " + $("#userInput").val())
-								
-								const userInput = $("#userInput").val()
-								if (userInput === answer) {
-									alert("정답입니다.")
-									//새로운 문제 출제
-									++index
-									if (index >= words.length) {
-										alert("학습을 종료합니다.")
-										location.reload()
-									} else {									
-										$("#problem").text(words[index].wordMeaning)
-										// focus
-										$("#userInput").val("")
-										$("#userInput").focus()
-									}
-								} else {
-									alert("틀렸습니다.")
-									// focus
-									$("#userInput").val("")
-									$("#userInput").focus()
-								}
-							})
+							$("#problem").text(items[index].wordMeaning)
+							$("#total").text(total)
+							$("#start").text((index + 1) +"/")
 							
 							$("#userInput").on("keyup", function(e) {
 								if (e.keyCode === 13) {
 									// 사용자 입력과 정답이 같다면
-									const answer = words[index].wordName
+									const answer = $.trim(items[index].wordName)
 									console.log("정답: " + answer)
 									console.log("사용자 입력: " + $("#userInput").val())
 									
-									const userInput = $("#userInput").val()
+									//const userInput = $("#userInput").val()
+									const userInput = $.trim($("#userInput").val())
 									if (userInput === answer) {
 										$("#result").text("정답입니다.")
 										$("#resultModal").modal("show")
@@ -178,22 +162,38 @@
 											$("#resultModal").modal("hide")
 											$("#userInput").val("")
 											$("#userInput").focus()
+											$("#helpResultInput").attr("placeholder", '"모르겠어요"를 누르면 이곳에 정답이 표시돼요!')
 										}, 800)
 										//새로운 문제 출제
 										++index
-										if (index >= words.length) {
+										$("#start").text((index + 1) + "/")
+										if (index >= words.length) {	
 											$("#result").text("학습을 종료합니다.")
 											$("#resultModal").modal("show")
 											setTimeout(function() {
 												location.reload()
 											}, 2000)
+											
 										} else {									
-											$("#problem").text(words[index].wordMeaning)
+											$("#problem").text(items[index].wordMeaning)
 										}
 									} else {
 										$("#result").text("틀렸습니다.")
-										$("#resultModal").modal("show")	
-										wrongWords.push({name: words[index].wordName, meaning: words[index].wordMeaning})
+										$("#resultModal").modal("show")
+										//틀린 단어를 모아둔다.
+										const id = items[index].wordId
+										const name = items[index].wordName
+										const meaning = items[index].wordMeaning
+										//이미 존재하는 단어면 추가하지 않는다.
+										let distinct = false 
+										for (const wrongWord of wrongWords) {
+											if (wrongWord.id === id) {
+												distinct = true
+											}
+										}
+										if (!distinct) {
+											wrongWords.push({id: id, name: name, meaning: meaning})
+										}
 										console.log(wrongWords)
 										setTimeout(function() {
 											$("#resultModal").modal("hide")
@@ -203,6 +203,13 @@
 									}
 									
 								}
+							})
+							
+							//모르겠어요 버튼을 클릭하면?
+							$("#helpButton").on("click", function() {
+								console.log("모르겠어요!")
+								const answer = words[index].wordName
+								$("#helpResultInput").attr("placeholder", answer)
 							})
 						}
 
@@ -265,14 +272,14 @@
                                         <input class="form-control input-answer" type="text" id="userInput" autocomplete="off" placeholder="스펠링을 입력해 주세요..." >
                                         <div class="input-group-append">
                                             <button id="checkButton" type="button" class="btn btn-outline-secondary">확인</button>
-                                            <button type="button" class="btn btn-outline-secondary">모르겠어요</button>
+                                            <button id="helpButton" type="button" class="btn btn-outline-secondary">모르겠어요</button>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                             <div class="row d-flex justify-content-center">
                                 <form class="form-inline" action="">
-                                    <input class="form-control show-answer mt-2" type="text" size="48" placeholder="&ldquo;모르겠어요&rdquo;를 누르면 이곳에 뜻이 표시돼요!" disabled>
+                                    <input class="form-control show-answer mt-2" id="helpResultInput" type="text" size="48" placeholder="&ldquo;모르겠어요&rdquo;를 누르면 이곳에 정답이 표시돼요!" disabled>
                                 </form>
                             </div>
 

@@ -56,5 +56,17 @@ public class WordServiceImpl implements WordService {
 		return mapper.readTotalCount(categoryId);
 	}
 
+	@Override
+	public List<WordVO> getListByRownum(Long rownum, Long bookId) {
+		return mapper.readListByRownum(rownum, bookId);
+	}
+
+	@Override
+	public Long getRownumByCategoryId(Long categoryId, Long bookId) {
+		return mapper.readRownumByCategoryId(categoryId, bookId);
+	}
+
+
+
 
 }
