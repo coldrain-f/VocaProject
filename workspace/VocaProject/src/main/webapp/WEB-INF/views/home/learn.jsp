@@ -3,11 +3,24 @@
 <%@ include file="../admin/includes/header.jsp" %>
 		
 			<style>
+				.input-answer {
+						width: 298px !important;
+				}
+				#helpButton {
+					margin-right: 2px;
+				}
+				.input-group {
+					margin-top: 2px;
+				}
+				#problem {
+					padding-bottom: 5px;
+					padding-left: 5px;
+					width: 453.06px;
+					
+				}
+			
 				/* PC 1024px ~ */
 				@media all and (min-width:1024px) {
-					.input-answer {
-						width: 300px !important;
-					}
 					.show-answer {
 						width: 498px !important;
 					}
@@ -31,6 +44,12 @@
 				
 				/* 모바일 가로, 모바일 세로 480px ~ 767px */
 				@media all and (max-width: 767px) {
+					.input-answer {
+						width: 150px !important;
+					}
+					#helpResultInput {
+						width: 270px !important;	
+					}
 					.state {
 						font-size: 14px !important;
 					}
@@ -127,63 +146,78 @@
 						
 						const listCheckInterval = setInterval(function() {
 							//0.1초 단위로 리스트를 가져왔는지 체크한다.
-							console.log(completeGetShuffleList)
-							if (completeGetShuffleList) { //단어 리스트를 가져왔다면 
+							if (completeGetShuffleList) { //단어 리스트를 가져왔다면
+								console.log("RestAPI에서 정상적으로 단어 리스트를 가져왔습니다.")
 								//인터벌을 클리어하고 학습을 시작한다.
 								clearInterval(listCheckInterval)
 								startStudy(words)
 							}
 						}, 100)
 						
+						let isRun = false
 						
 						// 학습 시작
 						function startStudy(items) {
-							console.log("startStudy()")
-							console.log(items)
-							// 처음 문제 출제
+							console.log("단어 학습을 시작합니다.")
+							for (const item of items) {
+								console.log(item)
+							}
+							// 첫 번째 문제 출제
 							let index = 0
-							$("#problem").text(items[index].wordMeaning)
+							let problem = items[index].wordMeaning
+							$("#problem").text(problem)
 							$("#total").text(total)
 							$("#start").text((index + 1) +"/")
-							
+							$("#helpResultInput").attr("placeholder", '"모르겠어요"를 누르면 이곳에 정답이 표시돼요!')
 							$("#userInput").on("keyup", function(e) {
-								if (e.keyCode === 13) {
+								if (e.keyCode === 13 && isRun == false) {
+									//사용자가 정답 전송의 연타를 방지하기 위한 코드
+									
+									isRun = true
 									// 사용자 입력과 정답이 같다면
 									const answer = $.trim(items[index].wordName)
-									console.log("정답: " + answer)
-									console.log("사용자 입력: " + $("#userInput").val())
-									
-									//const userInput = $("#userInput").val()
 									const userInput = $.trim($("#userInput").val())
+
+									//console.log("정답: " + answer)
+									//console.log("사용자 입력: " + userInput)
+									
+									//정답일 경우 처리
 									if (userInput === answer) {
-										$("#result").text("정답입니다.")
-										$("#resultModal").modal("show")
-										setTimeout(function() {
-											$("#resultModal").modal("hide")
-											$("#userInput").val("")
-											$("#userInput").focus()
-											$("#helpResultInput").attr("placeholder", '"모르겠어요"를 누르면 이곳에 정답이 표시돼요!')
-										}, 800)
-										//새로운 문제 출제
 										++index
-										$("#start").text((index + 1) + "/")
-										if (index >= words.length) {	
+										if (index >= items.length) { //학습이 종료 되었다면
 											$("#result").text("학습을 종료합니다.")
 											$("#resultModal").modal("show")
 											setTimeout(function() {
 												location.reload()
-											}, 2000)
-											
-										} else {									
-											$("#problem").text(items[index].wordMeaning)
+											}, 1000)
+										} else { //학습이 종료되지 않았다면
+											$("#result").text("정답입니다.")
+											$("#resultModal").modal("show")
+											setTimeout(function() {
+												$("#userInput").val("")
+												$("#helpResultInput").attr("placeholder", '"모르겠어요"를 누르면 이곳에 정답이 표시돼요!')
+												$("#resultModal").modal("hide")
+												$("#userInput").focus()
+												
+												//새로운 문제 출제
+												problem = items[index].wordMeaning
+												$("#start").text((index + 1) + "/")
+												$("#problem").text(problem)
+												isRun = false
+												
+											}, 1000)
 										}
-									} else {
+										
+									} else { //틀렸을 경우 처리
 										$("#result").text("틀렸습니다.")
 										$("#resultModal").modal("show")
 										//틀린 단어를 모아둔다.
 										const id = items[index].wordId
 										const name = items[index].wordName
 										const meaning = items[index].wordMeaning
+										
+										console.log("name = " + name)
+										
 										//이미 존재하는 단어면 추가하지 않는다.
 										let distinct = false 
 										for (const wrongWord of wrongWords) {
@@ -192,14 +226,15 @@
 											}
 										}
 										if (!distinct) {
-											wrongWords.push({id: id, name: name, meaning: meaning})
+											wrongWords.push({id: id, wordName: name, wordMeaning: meaning})
 										}
-										console.log(wrongWords)
+										
 										setTimeout(function() {
 											$("#resultModal").modal("hide")
 											$("#userInput").val("")
 											$("#userInput").focus()
-										}, 800)
+											isRun = false
+										}, 1000)
 									}
 									
 								}
@@ -266,8 +301,10 @@
 
                         <div class="card-body pt-5" style="height: 330px">
                             <div class="row d-flex justify-content-center mb-1 pt-5">
+                                    <div class="input-group d-flex justify-content-center">
+	                                    <label id="problem" for="userInput" class="form-label mr-2 mb-1" style="font-size: 18px"></label>
+                                    </div>
                                 <form class="form-inline" onsubmit="return false" >
-                                    <label id="problem" for="userInput" class="form-label mr-2 mb-1" style="font-size: 18px"></label>
                                     <div class="input-group">
                                         <input class="form-control input-answer" type="text" id="userInput" autocomplete="off" placeholder="스펠링을 입력해 주세요..." >
                                         <div class="input-group-append">
@@ -278,8 +315,20 @@
                                 </form>
                             </div>
                             <div class="row d-flex justify-content-center">
-                                <form class="form-inline" action="">
-                                    <input class="form-control show-answer mt-2" id="helpResultInput" type="text" size="48" placeholder="&ldquo;모르겠어요&rdquo;를 누르면 이곳에 정답이 표시돼요!" disabled>
+                                <form class="form-inline">
+                                	<div class="input-group">
+                                		<input class="form-control" id="helpResultInput" type="text" autocomplete="off" 
+                                			size="48" placeholder="&ldquo;모르겠어요&rdquo;를 누르면 이곳에 정답이 표시돼요!" readonly>
+                                		<div class="input-group-append">
+                                			<button type="button" class="btn btn-outline-secondary btn-sm">
+                                				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-volume-up-fill" viewBox="0 0 16 16">
+  <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+  <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
+  <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06z"/>
+												</svg>
+                                			</button>
+                                		</div>
+                                	</div>
                                 </form>
                             </div>
 
@@ -302,9 +351,6 @@
                             </div>
                             <div class="modal-body">
                                 <p id="result"></p>
-                            </div>
-                            <div class="modal-footer">
-                                <button id="stateCheckButton" type="button" class="btn btn-secondary" data-dismiss="modal">확인</button>
                             </div>
                         </div>
                     </div>
