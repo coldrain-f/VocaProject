@@ -49,7 +49,7 @@ public class WordRestController {
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 	
-	//특정 카테고리에 소속된 단어 목록 조회하기 ( 랜덤 )
+	//특정 카테고리에 소속된 단어 목록 조회하기 ( 랜덤 1/4/7/14 학습법 적용 )
 	@GetMapping(value = "/categories/{categoryId}/words/shuffle",
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<WordVO>> getShuffleList(@PathVariable("categoryId") Long categoryId) {
@@ -63,7 +63,7 @@ public class WordRestController {
 		
 		//조회된 rownum으로 단어 목록을 조회한다.
 		List<WordVO> list = service.getListByRownum(rownum, bookId);
-		Collections.shuffle(list);
+		//Collections.shuffle(list);
 		
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}

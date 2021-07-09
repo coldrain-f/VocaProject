@@ -94,6 +94,17 @@
 					}
 				}
 				
+				//단어 학습과 관련된 데이터 초기화
+				function clearStudyForm() {
+					$("#userInput").val("");
+					$("#problem").text("");
+					$("#bookName").text("");
+					$("#categoryName").text("");
+					$("#start").text("");
+					$("#total").text("");
+					$("#helpResultInput").attr("placeholder", "“모르겠어요”를 누르면 이곳에 정답이 표시돼요!");
+				}
+				
 				//단어의 아이디로 중복 체크
 				function duplicateCheck(words, wordId) {
 					for (const word of words) {
@@ -127,14 +138,74 @@
 				//단어 학습 시작
 				function startQuiz(words) {
 					//문제 출제 ( 중복 코드 )
-					let word = words.pop();
-					let problem = word.wordMeaning;
-					let answer = word.wordName;
+					const total = words.length;
 
+					let word = words.pop();
+					let problem = null;
+					let answer = null;
+					
+					//타입 체크
+					const checkedTypeRadioValue = $("input[name='type']:checked").val();
+					if ( checkedTypeRadioValue === "0" ) { //타입이 0이라면 한글로 문제 출제
+						problem = word.wordMeaning;
+						answer = word.wordName;
+					} else if ( checkedTypeRadioValue === "1" ) { //타입이 1이라면 출제 단어로 문제 출제
+						problem = word.wordName;
+						answer = word.wordMeaning;
+					}
+					
+					//일본어 인지 체크한다.
+					let japanese = problem.split("・");
+					let hiragana = null;
+					if ( japanese.length > 1 ) { // 2이상이면 일본어 [ 한자 , 히라가나 ] 
+						hiragana = japanese[1];
+						problem = japanese[0];
+					}
+										
 					$("#problem").text(problem);
 					
+					$("#helpResultInput").attr("placeholder", "“모르겠어요”를 누르면 이곳에 정답이 표시돼요!");
+					
+					let count = 1;
+					$("#start").text(count + "/");
+					$("#total").text(total);
+					
+					//학습 제목 구성
+					const bookName = $("#bookSelectBox option:selected").text();
+					const categoryName = $("#categorySelectBox option:selected").text();
+					
+					$("#bookName").text(bookName);
+					$("#categoryName").text(categoryName);
+
 					//틀린 문제를 담을 배열 선언
 					let wrongWords = [];
+					
+					//모르겠어요 버튼 클릭 이벤트 리스터
+					$("#helpButton").on("click", () => {
+						//사용자에게 정답을 표시해 준다.
+						if ( hiragana !== null ) { //일본어라면
+							hiragana = japanese[1];
+							$("#helpResultInput").attr("placeholder", answer + " / " + hiragana);
+						} else { //일본어가 아니라면
+							$("#helpResultInput").attr("placeholder", answer);
+						}
+						
+						//정답을 표시하고 정답 입력창으로 자동 포커스
+						$("#userInput").focus();
+						
+						//모르겠어요를 누른 단어도 틀린 단어로 취급하고 틀린 단어 배열에 추가한다.
+						const wordVO = {
+								wordId : word.wordId, 
+								wordName: word.wordName,
+								wordMeaning: word.wordMeaning	
+						};
+								
+						//이미 들어가있는 단어가 아니라면
+						if ( !duplicateCheck( wrongWords, wordVO.wordId ) ) {
+							//틀린 단어 배열에 추가한다.
+							wrongWords.push(wordVO);
+						}
+					});
 					
 					//사용자가 정답을 입력 후 엔터키를 누른다.
 					$("#userInput").on("keyup", function(event) {
@@ -143,15 +214,22 @@
 							isRun = true;
 							
 							//사용자가 입력한 값과 정답을 비교한다.
-							const userInput = $("#userInput").val();
+							const userInput = $.trim( $("#userInput").val() );
+							answer = $.trim ( answer );
 							
 							//사용자가 입력한 값이 정답인지 체크한다.
+							console.log("사용자 입력: " + userInput);
+							console.log("시스템 정답: " + answer);
 							if ( userInput === answer ) {
 								//사용자에게 정답임을 알려주는 모달창을 띄워준다.
 								showStateModal("정답입니다.", 1000);
 								
 								//사용자가 기존에 입력한 값을 초기화 한다.
 								$("#userInput").val("");
+								$("#helpResultInput").attr("placeholder", "“모르겠어요”를 누르면 이곳에 정답이 표시돼요!");
+								
+								//현재 진행도를 갱신한다.
+								$("#start").text(++count + "/");
 							
 								//모든 단어의 학습이 완료되었다면 학습을 종료한다.
 								if (  words.length <= 0 ) {
@@ -164,9 +242,11 @@
 										//정답 입력 엔터키 이벤트를 제거한다.
 										$("#userInput").off("keyup");
 										
+										//모르겠어요 클릭 이벤트를 제거한다.
+										$("#helpButton").off("click");
+										
 										//초기 상태로 초기화
-										$("#userInput").val("");
-										$("#problem").text("");
+										clearStudyForm();
 										
 										//학습 종료
 										return;
@@ -174,18 +254,35 @@
 										//기존에 존재하는 keyup 이벤트 리스너를 제거한다.
 										$("#userInput").off("keyup");
 									
+										//기존에 존재하는 모르겠어요 이벤트 리스너를 제거한다.
+										$("#helpButton").off("click");
+									
 										//사용자에게 재 학습을 알리는 모달창을 띄워준다.
 										showStateModal("틀린 단어를 모아서 새로 학습합니다.", 1000);
 
-										//그 다음 틀린 단어로 학습을 재시작한다.
+										//그 다음 틀린 단어를 뒤 섞고 학습을 재시작한다.
+										wrongWords = _.shuffle(wrongWords);
 										startQuiz(wrongWords);
 										return;
 									}
 									
 								} else { //학습할 단어가 남아있다면 다음 문제를 출제한다. ( 중복 코드 )
 									word = words.pop();
-									problem = word.wordMeaning;
-									answer = word.wordName;
+								
+									if ( checkedTypeRadioValue === "0" ) { //타입이 0이라면 한글로 문제 출제
+										problem = word.wordMeaning;
+										answer = word.wordName;
+									} else if ( checkedTypeRadioValue === "1" ) { //타입이 1이라면 출제 단어로 문제 출제
+										problem = word.wordName;
+										answer = word.wordMeaning;
+									}
+									
+									//일본어 처리
+									japanese = problem.split("・");
+									if ( japanese.length > 1 ) { // 2이상이면 일본어 [ 한자 , 히라가나 ] 
+										hiragana = japanese[1];
+										problem = japanese[0];
+									}
 									
 									$("#problem").text(problem);
 								}
@@ -244,19 +341,24 @@
 					$("#bookSelectBox").on("change", function() {
 						//선택된 책의 아이디값을 가져온다.
 						const bookId = $(this).val();
-
+						
 						//선택된 책의 아이디값에 해당하는 카테고리로 셀렉트 박스를 초기화한다.
 						initCategorySelectBox(bookId);
 					});
 
 					//학습 시작 버튼 클릭 이벤트
 					$("#startButton").on("click", function() {
-						//선택된 카테고리 아이디에 해당하는 단어로 학습을 시작한다.
+						//이미 학습중이었다면 이벤트를 제거한다.
+						$("#userInput").off("keyup");
 						
+						//선택된 카테고리 아이디에 해당하는 단어로 학습을 시작한다.
 						const categoryId = $("#categorySelectBox option:selected").val();
-						const url = "/categories/" + categoryId + "/words";
+						const url = "/categories/" + categoryId + "/words/shuffle";
 						$.getJSON(url, (words) => {
-							//단어 리스트 조회에 성공하면 단어 학습을 시작한다.
+							console.log("단어 리스트 조회에 성공했습니다.");
+							console.dir(words);
+							//단어 리스트 조회에 성공하면 단어를 섞고 학습을 시작한다.
+							words = _.shuffle(words);
 							startQuiz(words);
 							
 						}).fail((error) => {
@@ -282,6 +384,18 @@
                                 <label for="categorySelectBox" class="form-label">카테고리</label>
                                 <select name="" id="categorySelectBox" class="custom-select"></select>
                             </div>
+                           	<div class="form-check mb-2">
+							  <input class="form-check-input" type="radio" name="type" id="type0" value="0" checked>
+							  <label class="form-check-label" for="type0">
+							    한글 단어로 퀴즈 출제하기 <br/>예시) 여자아이 → 女の子
+							  </label>
+							</div>
+							<div class="form-check">
+							  <input class="form-check-input" type="radio" name="type" id="type1" value="1">
+							  <label class="form-check-label" for="type1">
+							    학습하려는 단어로 퀴즈 출제하기 <br/>예시) 女の子 → 여자아이
+							  </label>
+							</div>
                             <div class="row mb-4 pl-2 pr-2 d-flex justify-content-end">
                                 <button id="startButton" type="button" class="btn btn-info">학습 시작</button>
                             </div>
@@ -315,7 +429,7 @@
                         <div class="card-body pt-5" style="height: 330px">
                             <div class="row d-flex justify-content-center mb-1 pt-5">
                                     <div class="input-group d-flex justify-content-center">
-	                                    <label id="problem" for="userInput" class="form-label mr-2 mb-1" style="font-size: 18px"></label>
+	                                    <label id="problem" for="userInput" class="form-label mr-2 mb-1" style="font-size: 24px"></label>
                                     </div>
                                 <form class="form-inline" onsubmit="return false" >
                                     <div class="input-group">

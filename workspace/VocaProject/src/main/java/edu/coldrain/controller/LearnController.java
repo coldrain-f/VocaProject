@@ -11,10 +11,16 @@ public class LearnController {
 
 	
 	@GetMapping("/home/learn")
-	public String learnTest() {
+	public String learn() {
 		log.info("LearnController.learnTest()");
 		
 		//나중에 이름 learn으로 변경해야 됨
 		return "/home/learn2";
+	}
+	
+	@GetMapping("/home/learnOld")
+	public String learnOld() {
+		
+		return "/home/learn";
 	}
 }
