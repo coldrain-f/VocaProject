@@ -175,8 +175,8 @@
 						            
 						            
 						            $("#modifyWordId").val(wordId)
-						           	$("#modifyWordName").attr("placeholder", wordName)
-						           	$("#modifyWordMeaning").attr("placeholder", wordMeaning)
+						           	$("#modifyWordName").val(wordName)
+						           	$("#modifyWordMeaning").val(wordMeaning)
 						           	
 						           	$("#modifyBookId").val(bookId)
 						           	$("#modifyCategoryId").val(categoryId)
@@ -238,8 +238,12 @@
                                         <tr>
                                             <th><input type="checkbox" id="all"><label class="form-label p-0 m-0 pl-2" for="all">ALL</label></th>
                                             <th>WORD_ID</th>
-                                            <th>WORD_NAME</th>
-                                            <th>WORD_MEANING</th>
+                                            <th>WORD</th>
+                                            <th>MEANING</th>
+                                            <!-- 카테고리 언어가 일본어인 경우에 후리가나를 표시한다. -->
+                                            <c:if test="${categoryLanguage eq 'jp' }">
+                                            	<th>HURIGANA</th>
+                                            </c:if>
                                             <th>REGDATE</th>
                                             <th>UPDATEDATE</th>
                                             <th class="text-center">ACTIONS</th>
@@ -253,6 +257,9 @@
 	                                            <td><c:out value="${word.wordId }" /></td>
 	                                            <td><c:out value="${word.wordName }" /></td>
 	                                            <td><c:out value="${word.wordMeaning }" /></td>
+	                                            <c:if test="${categoryLanguage eq 'jp' }">
+	                                            	<td><c:out value="${word.hurigana }" /></td>
+	                                            </c:if>
 	                                            <td><fmt:formatDate value="${word.regdate }" pattern="yyyy-MM-dd" /></td>	
 	                                            <td><fmt:formatDate value="${word.updatedate }" pattern="yyyy-MM-dd" /></td>
 	                                            <td class="text-center">
@@ -300,10 +307,15 @@
                                                 <input class="form-control" type="text" name="wordId" id="modifyWordId" value="1" readonly />
     
                                                 <label class="form-label mt-2" for="modifyWordName">단어</label>
-                                                <input class="form-control" type="text" name="wordName" id="modifyWordName" onkeyup="printResult('modifyWordName', 'modifyWordNameResult')" placeholder="spice" autocomplete="off" />
+                                                <input class="form-control" type="text" name="wordName" id="modifyWordName" onkeyup="printResult('modifyWordName', 'modifyWordNameResult')" autocomplete="off" />
+    
+    											<c:if test="${categoryLanguage eq 'jp' }">
+													<label class="form-label mt-2" for="modifyHurigana">후리가나</label>
+	                                                <input type="text" class="form-control" name="hurigana" id="modifyHurigana" autocomplete="off" />
+												</c:if>
     
                                                 <label class="form-label mt-2" for="modifyWordMeaning">뜻</label>
-                                                <input class="form-control mb-4" type="text" name="wordMeaning" id="modifyWordMeaning" onkeyup="printResult('modifyWordMeaning', 'modifyWordMeaningResult')" placeholder="양념" autocomplete="off" />
+                                                <input class="form-control mb-4" type="text" name="wordMeaning" id="modifyWordMeaning" onkeyup="printResult('modifyWordMeaning', 'modifyWordMeaningResult')" autocomplete="off" />
 
                                                 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
                                                     <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
@@ -369,6 +381,11 @@
                                                 <label class="form-label mt-2" for="removeWordName">단어</label>
                                                 <input class="form-control" type="text" name="wordName" id="removeWordName" value="spice" readonly />
     
+    											<c:if test="${categoryLanguage eq 'jp' }">
+													<label class="form-label mt-2" for="removeHurigana">후리가나</label>
+	                                                <input type="text" class="form-control" name="hurigana" id="removeHurigana" readonly />
+												</c:if>
+    
                                                 <label class="form-label mt-2" for="removeWordMeaning">뜻</label>
                                                 <input class="form-control" type="text" name="removeWordName" id="removeWordMeaning" value="양념" readonly />
                                             </div>
@@ -411,6 +428,12 @@
                                                 <input type="text" class="form-control" name="wordName" id="addWordName" autocomplete="off"
                                                     onkeyup="printResult('addWordName', 'addWordNameResult')" placeholder="추가할 단어를 입력해 주세요..." />
 
+												<c:if test="${categoryLanguage eq 'jp' }">
+													<label class="form-label mt-2" for="addHurigana">후리가나</label>
+	                                                <input type="text" class="form-control" name="hurigana" id="addHurigana" autocomplete="off"
+	                                                    placeholder="추가할 단어의 후리가나를 입력해 주세요..." />
+												</c:if>
+												
                                                 <label class="form-label mt-2" for="addWordMeaning">뜻</label>
                                                 <input type="text" class="form-control mb-4" name="wordMeaning" id="addWordMeaning" autocomplete="off"
                                                     onkeyup="printResult('addWordMeaning', 'addWordMeaningResult')" placeholder="추가할 단어의 뜻을 입력해 주세요..." />

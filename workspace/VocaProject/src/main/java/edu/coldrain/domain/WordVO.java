@@ -31,6 +31,9 @@ public class WordVO {
 	// 수정일 DEFAULT SYSDATE
 	private Date updatedate;
 	
+	// 후리가나
+	private String hurigana;
+	
 	public WordVO(String wordName, String wordMeaning, Long categoryId) {
 		this.wordName = wordName;
 		this.wordMeaning = wordMeaning;

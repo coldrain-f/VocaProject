@@ -28,6 +28,9 @@ public class CategoryVO {
 	// 수정일 DEFAULT SYSDATE
 	private Date updatedate;
 	
+	// 카테고리 언어
+	private String language;
+	
 	public CategoryVO(String categoryName, Long bookId) {
 		this.categoryName = categoryName;
 		this.bookId = bookId;

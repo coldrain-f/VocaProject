@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import edu.coldrain.domain.Criteria;
 import edu.coldrain.domain.PageDTO;
 import edu.coldrain.domain.WordVO;
+import edu.coldrain.service.CategoryService;
 import edu.coldrain.service.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -23,6 +24,8 @@ import lombok.extern.log4j.Log4j;
 public class WordController {
 
 	private final WordService service;
+	
+	private final CategoryService categoryService;
 	
 	
 	@GetMapping("/list")
@@ -36,6 +39,12 @@ public class WordController {
 			model.addAttribute("categoryId", categoryId);
 			
 			model.addAttribute("pageDTO", new PageDTO(criteria, service.getTotalCount(categoryId)));
+			
+			//카테고리 언어 설정
+			String categoryLanguage = categoryService.get(categoryId).getLanguage();
+			model.addAttribute("categoryLanguage", categoryLanguage);
+			
+			log.info("카테고리 언어:" + categoryLanguage);
 			
 		} else if (categoryId != null && categoryId == -1) {
 			model.addAttribute("result", "NOT FOUND CATEGORY");

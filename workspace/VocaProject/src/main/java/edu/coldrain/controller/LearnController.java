@@ -23,4 +23,9 @@ public class LearnController {
 		
 		return "/home/learn";
 	}
+	
+	@GetMapping("/home/learnTest")
+	public String learnTest() {
+		return "/home/learn3";
+	}
 }
